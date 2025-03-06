@@ -4,7 +4,7 @@ const recipes = [
     title: "Chicken Biryani",
     description: "Aromatic and flavorful rice dish with spices and chicken.",
     image: "/images/biryani.jpg", 
-    time: "90 minutes",
+    time: "90",
     ingredients: [
       "2 cups Basmati Rice",
       "500g Chicken",
@@ -25,7 +25,7 @@ const recipes = [
     title: "Pizza",
     description: "Cheesy and delicious homemade pizza with a crispy crust.",
     image: "/images/pizza.jpg",  
-    time: "45 minutes",
+    time: "45 ",
     ingredients: [
       "2 cups Flour",
       "1 tsp Yeast",
@@ -46,7 +46,7 @@ const recipes = [
     title: "Gajar Halwa",
     description: "Traditional Indian sweet made with carrots, milk, and dry fruits.",
     image: "/images/gajarhalwa.jpg",  
-    time: "40 minutes",
+    time: "40 ",
     ingredients: [
       "4 cups Grated Carrots",
       "2 cups Milk",
@@ -66,7 +66,7 @@ const recipes = [
     title: "Rasmalai",
     description: "Soft and spongy paneer balls soaked in sweet saffron milk.",
     image: "/images/rasmalai.jpg",  
-    time: "50 minutes",
+    time: "50 ",
     ingredients: [
       "2 liters Milk",
       "2 tbsp Lemon Juice",
@@ -89,7 +89,7 @@ const recipes = [
     title: "Pasta",
     description: "Creamy and delicious homemade pasta with a rich sauce.",
     image: "/images/pasta.jpg", 
-    time: "30 minutes",
+    time: "30",
     ingredients: [
       "2 cups Pasta",
       "2 tbsp Olive Oil",

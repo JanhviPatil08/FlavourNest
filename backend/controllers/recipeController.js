@@ -25,17 +25,23 @@ export const createRecipe = async (req, res) => {
     // ✅ Convert `ingredients` & `instructions` to array safely
     let parsedIngredients, parsedInstructions;
     try {
-      parsedIngredients = Array.isArray(ingredients) ? ingredients : JSON.parse(ingredients);
-      parsedInstructions = Array.isArray(instructions) ? instructions : JSON.parse(instructions);
+      parsedIngredients = typeof ingredients === "string" ? JSON.parse(ingredients) : ingredients;
+      parsedInstructions = typeof instructions === "string" ? JSON.parse(instructions) : instructions;
     } catch (err) {
       console.error("❌ Error parsing JSON fields:", err);
       return res.status(400).json({ message: "Invalid format for ingredients or instructions." });
     }
 
-    // ✅ Ensure cookingTime is a number
+    // ✅ Validate ingredients & instructions are arrays
+    if (!Array.isArray(parsedIngredients) || !Array.isArray(parsedInstructions)) {
+      console.error("❌ Ingredients or Instructions are not arrays.");
+      return res.status(400).json({ message: "Ingredients and Instructions must be arrays." });
+    }
+
+    // ✅ Ensure cookingTime is a valid number
     const parsedCookingTime = Number(cookingTime);
     if (isNaN(parsedCookingTime) || parsedCookingTime <= 0) {
-      return res.status(400).json({ message: "Invalid cooking time." });
+      return res.status(400).json({ message: "Invalid cooking time. Must be a positive number." });
     }
 
     // ✅ Create a new recipe
@@ -69,9 +75,3 @@ export const getRecipes = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch recipes." });
   }
 };
-
-
-
-
-
-

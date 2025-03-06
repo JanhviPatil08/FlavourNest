@@ -9,44 +9,41 @@ const Recipes = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [user, setUser] = useState(null); // ✅ Track user authentication
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      navigate("/login");
+      setError("User not logged in. Redirecting to login...");
+      setTimeout(() => navigate("/login"), 2000);
       return;
     }
 
-    // ✅ Check if user is logged in
-    axios
-      .get("https://flavournest.onrender.com/auth/me", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then((res) => {
-        setUser(res.data);
-        fetchRecipes(token);
-      })
-      .catch(() => {
-        navigate("/login"); // Redirect to login if not authenticated
-      });
-  }, [navigate]);
+    const fetchUserAndRecipes = async () => {
+      try {
+        // ✅ Fetch user data
+        const userRes = await axios.get("https://flavournest.onrender.com/auth/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUser(userRes.data);
 
-  const fetchRecipes = (token) => {
-    axios
-      .get("https://flavournest.onrender.com/recipes", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then((res) => {
-        setRecipes(res.data);
-        setLoading(false);
-      })
-      .catch(() => {
+        // ✅ Fetch recipes
+        const recipesRes = await axios.get("https://flavournest.onrender.com/recipes", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        setRecipes(recipesRes.data);
+      } catch (err) {
+        console.error("❌ Error fetching data:", err.response?.data?.message || err.message);
         setError("Failed to load recipes. Please try again.");
+      } finally {
         setLoading(false);
-      });
-  };
+      }
+    };
+
+    fetchUserAndRecipes();
+  }, [navigate]);
 
   return (
     <Container className="mt-5">

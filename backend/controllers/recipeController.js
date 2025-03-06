@@ -1,52 +1,36 @@
 import Recipe from "../models/Recipe.js";
 
-// ✅ Get All Recipes
-export const getRecipes = async (req, res) => {
-  try {
-    const recipes = await Recipe.find();
-    console.log("✅ Fetched Recipes:", recipes.length);
-    res.json(recipes);
-  } catch (error) {
-    console.error("❌ Error Fetching Recipes:", error);
-    res.status(500).json({ message: "Failed to fetch recipes." });
-  }
-};
-
-// ✅ Create a New Recipe (With Image Upload)
 export const createRecipe = async (req, res) => {
-  console.log("📌 Received Recipe Data:", req.body);
-  console.log("📌 User ID from Token:", req.user?.id);
-  console.log("📌 Uploaded Image:", req.file);
-
-  const { title, description, cookingTime, ingredients, instructions } = req.body;
-
-  // ✅ Ensure required fields are present
-  if (!title || !description || !cookingTime || !ingredients || !instructions || !req.file) {
-    console.log("❌ Missing Fields:", { title, description, cookingTime, ingredients, instructions, image: req.file?.filename });
-    return res.status(400).json({ message: "All fields, including an image, are required." });
-  }
-
-  // ✅ Parse `ingredients` & `instructions` to arrays if needed
-  let parsedIngredients, parsedInstructions;
   try {
-    parsedIngredients = typeof ingredients === "string" ? JSON.parse(ingredients) : ingredients;
-    parsedInstructions = typeof instructions === "string" ? JSON.parse(instructions) : instructions;
-  } catch (err) {
-    console.log("❌ Error parsing ingredients/instructions:", err);
-    return res.status(400).json({ message: "Invalid ingredients or instructions format." });
-  }
+    console.log("📌 Received Recipe Data:", req.body);
+    console.log("📌 User ID from Token:", req.user?.id);
+    console.log("📌 Uploaded Image:", req.file);
 
-  const imageUrl = `/uploads/${req.file.filename}`;
+    const { title, description, cookingTime, ingredients, instructions } = req.body;
 
-  try {
+    if (!req.user?.id) {
+      console.error("❌ User ID not found. Ensure authMiddleware is working.");
+      return res.status(401).json({ message: "Unauthorized. Please log in." });
+    }
+
+    if (!req.file) {
+      console.error("❌ No image uploaded.");
+      return res.status(400).json({ message: "Image is required." });
+    }
+
+    if (!title || !description || !cookingTime || !ingredients || !instructions) {
+      console.error("❌ Missing required fields.");
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
     const newRecipe = new Recipe({
       title,
       description,
       cookingTime: Number(cookingTime),
-      ingredients: parsedIngredients,
-      instructions: parsedInstructions,
-      imageUrl,
-      createdBy: req.user.id, // ✅ Ensure `authMiddleware` sets `id`
+      ingredients: JSON.parse(ingredients), // Ensure ingredients is an array
+      instructions: JSON.parse(instructions), // Ensure instructions is an array
+      imageUrl: `/uploads/${req.file.filename}`,
+      createdBy: req.user.id,
     });
 
     await newRecipe.save();
@@ -54,10 +38,6 @@ export const createRecipe = async (req, res) => {
     res.status(201).json(newRecipe);
   } catch (error) {
     console.error("❌ Recipe Creation Error:", error);
-    res.status(500).json({ message: "Failed to create recipe." });
+    res.status(500).json({ message: "Failed to create recipe.", error: error.message });
   }
 };
-
-
-
-

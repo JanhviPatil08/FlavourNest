@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Container, Form, Button, Alert } from "react-bootstrap";
+import { Container, Form, Button, Alert, Spinner } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Ensure toast styles are imported
+import "react-toastify/dist/ReactToastify.css";
 
 const RecipeForm = () => {
   const navigate = useNavigate();
@@ -15,9 +15,11 @@ const RecipeForm = () => {
     cookingTime: "",
     image: null,
   });
-  const [error, setError] = useState("");
 
-  // ✅ Handle Form Inputs
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // ✅ Handle Input Changes
   const handleChange = (e) => {
     if (e.target.name === "image") {
       setFormData({ ...formData, image: e.target.files[0] });
@@ -30,21 +32,30 @@ const RecipeForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    const token = localStorage.getItem("token"); // Get token from localStorage
-
+    const token = localStorage.getItem("token");
     if (!token) {
       setError("User not logged in. Please log in first.");
       toast.error("User not logged in. Please log in first.");
+      setLoading(false);
+      return;
+    }
+
+    // ✅ Ensure all fields are filled
+    if (!formData.title || !formData.description || !formData.cookingTime || !formData.ingredients || !formData.instructions || !formData.image) {
+      setError("All fields including an image are required.");
+      toast.error("All fields including an image are required.");
+      setLoading(false);
       return;
     }
 
     const formDataToSend = new FormData();
     formDataToSend.append("title", formData.title);
     formDataToSend.append("description", formData.description);
-    formDataToSend.append("cookingTime", Number(formData.cookingTime)); // Ensure it's a number
+    formDataToSend.append("cookingTime", Number(formData.cookingTime)); // ✅ Ensure it's a number
 
-    // ✅ Convert ingredients & instructions to JSON format
+    // ✅ Convert ingredients & instructions to JSON arrays
     const ingredientsArray = formData.ingredients.split("\n").map((item) => item.trim());
     const instructionsArray = formData.instructions.split("\n").map((item) => item.trim());
 
@@ -52,8 +63,10 @@ const RecipeForm = () => {
     formDataToSend.append("instructions", JSON.stringify(instructionsArray));
     formDataToSend.append("image", formData.image);
 
+    console.log("📌 Submitting Recipe Data:", formDataToSend);
+
     try {
-      const response = await axios.post("https://flavournest.onrender.com/recipes/add", formDataToSend, {
+      const response = await axios.post("https://flavournest.onrender.com/recipes", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -62,11 +75,13 @@ const RecipeForm = () => {
 
       console.log("✅ Recipe Added Successfully:", response.data);
       toast.success("Recipe added successfully!");
+      setLoading(false);
       navigate("/");
     } catch (err) {
       console.error("❌ Error adding recipe:", err.response?.data);
-      setError(err.response?.data?.message || "Error adding recipe");
-      toast.error(err.response?.data?.message || "Error adding recipe");
+      setError(err.response?.data?.message || "Error adding recipe.");
+      toast.error(err.response?.data?.message || "Error adding recipe.");
+      setLoading(false);
     }
   };
 
@@ -106,12 +121,12 @@ const RecipeForm = () => {
           <Form.Control type="file" name="image" onChange={handleChange} required />
         </Form.Group>
 
-        <Button type="submit" variant="success" className="w-100">Submit Recipe</Button>
+        <Button type="submit" variant="success" className="w-100" disabled={loading}>
+          {loading ? <Spinner size="sm" animation="border" /> : "Submit Recipe"}
+        </Button>
       </Form>
     </Container>
   );
 };
 
 export default RecipeForm;
-
-

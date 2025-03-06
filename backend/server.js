@@ -10,24 +10,29 @@ dotenv.config(); // ✅ Load environment variables
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// ✅ Middleware
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://flavournest-1.onrender.com", // ✅ Allow only frontend
+    credentials: true, // ✅ Enable cookies/token authentication
+    methods: "GET,POST,PUT,DELETE",
+    allowedHeaders: "Content-Type,Authorization",
+  })
+);
 
 // ✅ Test Route to Check If Backend Is Running
 app.get("/", (req, res) => {
   res.send("🚀 FOODGRAM API is running...");
 });
 
-// API Routes
+// ✅ API Routes
 app.use("/auth", authRoutes);
 app.use("/recipes", recipeRoutes);
 app.use("/uploads", express.static("uploads")); // ✅ Serve uploaded images
 
-
-// ✅ MongoDB Connection (Deprecated options removed)
+// ✅ MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI;
-
 if (!MONGO_URI) {
   console.error("❌ MongoDB URI is missing in .env file");
   process.exit(1);
@@ -43,5 +48,3 @@ mongoose
 
 // ✅ Start Server
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
-

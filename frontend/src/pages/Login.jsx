@@ -29,7 +29,11 @@ const Login = () => {
 
       if (response.status === 200 || response.status === 201) {
         toast.success(isRegister ? "Registration successful! Please login." : "Login successful!");
-        if (!isRegister) navigate("/profile"); // ✅ Redirect after login
+
+        if (!isRegister) {
+          localStorage.setItem("token", response.data.token); // ✅ Store token for authentication
+          navigate("/profile"); // ✅ Redirect after login
+        }
       } else {
         throw new Error("Unexpected response from server.");
       }
@@ -46,7 +50,7 @@ const Login = () => {
       <Card className="p-4 shadow-lg rounded-4" style={{ width: "100%", maxWidth: "400px" }}>
         <Card.Body>
           <h2 className="text-center text-success fw-bold">
-            {isRegister ? "Join FOODGRAM" : "Welcome Back"}
+            {isRegister ? "Join FlavourNest" : "Welcome Back"}
           </h2>
           {error && <Alert variant="danger">{error}</Alert>}
           
@@ -86,4 +90,3 @@ const Login = () => {
 };
 
 export default Login;
-

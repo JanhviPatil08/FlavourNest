@@ -9,7 +9,7 @@ const RecipeForm = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
-    description: "", 
+    description: "",
     ingredients: "",
     instructions: "",
     cookingTime: "",
@@ -29,9 +29,17 @@ const RecipeForm = () => {
     e.preventDefault();
     setError("");
 
+    const token = localStorage.getItem("token"); // Get token from localStorage
+
+    if (!token) {
+      setError("User not logged in. Please log in first.");
+      toast.error("User not logged in. Please log in first.");
+      return;
+    }
+
     const formDataToSend = new FormData();
     formDataToSend.append("title", formData.title);
-    formDataToSend.append("description", formData.description); // Include description
+    formDataToSend.append("description", formData.description);
     formDataToSend.append("ingredients", formData.ingredients);
     formDataToSend.append("instructions", formData.instructions);
     formDataToSend.append("cookingTime", formData.cookingTime);
@@ -39,13 +47,16 @@ const RecipeForm = () => {
 
     try {
       await axios.post("https://flavournest.onrender.com/recipes", formDataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`, // Include token for authentication
+        },
       });
       toast.success("Recipe added successfully!");
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Error adding recipe");
-      toast.error("Error adding recipe");
+      toast.error(err.response?.data?.message || "Error adding recipe");
     }
   };
 

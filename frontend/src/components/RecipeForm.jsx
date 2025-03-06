@@ -3,7 +3,7 @@ import { Container, Form, Button, Alert } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";  // Ensure toast styles are imported
+import "react-toastify/dist/ReactToastify.css"; // Ensure toast styles are imported
 
 const RecipeForm = () => {
   const navigate = useNavigate();
@@ -11,6 +11,7 @@ const RecipeForm = () => {
     title: "",
     ingredients: "",
     instructions: "",
+    cookingTime: "", // Added cooking time
     image: null,
   });
   const [error, setError] = useState("");
@@ -31,6 +32,7 @@ const RecipeForm = () => {
     formDataToSend.append("title", formData.title);
     formDataToSend.append("ingredients", formData.ingredients);
     formDataToSend.append("instructions", formData.instructions);
+    formDataToSend.append("cookingTime", formData.cookingTime); // Include cooking time
     formDataToSend.append("image", formData.image);
 
     try {
@@ -67,6 +69,11 @@ const RecipeForm = () => {
         </Form.Group>
 
         <Form.Group className="mb-3">
+          <Form.Label>Cooking Time (in minutes)</Form.Label>
+          <Form.Control type="number" name="cookingTime" value={formData.cookingTime} onChange={handleChange} required />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
           <Form.Label>Recipe Image</Form.Label>
           <Form.Control type="file" name="image" onChange={handleChange} required />
         </Form.Group>
@@ -78,3 +85,4 @@ const RecipeForm = () => {
 };
 
 export default RecipeForm;
+

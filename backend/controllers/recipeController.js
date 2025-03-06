@@ -18,16 +18,22 @@ export const createRecipe = async (req, res) => {
   console.log("📌 User ID from Token:", req.user?.id);
   console.log("📌 Uploaded Image:", req.file);
 
-  const { title, description, time, ingredients, steps } = req.body;
+  const { title, description, cookingTime, ingredients, instructions } = req.body;
 
-  // ✅ Ensure `ingredients` and `steps` are arrays
-  const parsedIngredients = Array.isArray(ingredients) ? ingredients : ingredients.split(",");
-  const parsedSteps = Array.isArray(steps) ? steps : steps.split(".");
+  // ✅ Ensure required fields are present
+  if (!title || !description || !cookingTime || !ingredients || !instructions || !req.file) {
+    console.log("❌ Missing Fields:", { title, description, cookingTime, ingredients, instructions, image: req.file?.filename });
+    return res.status(400).json({ message: "All fields, including an image, are required." });
+  }
 
-  // ✅ Check for missing fields
-  if (!title || !description || !time || !parsedIngredients.length || !parsedSteps.length || !req.file) {
-    console.log("❌ Missing Fields:", { title, description, time, ingredients, steps, imageUrl });
-    return res.status(400).json({ message: "All fields, including an image, are required" });
+  // ✅ Parse `ingredients` & `instructions` to arrays if needed
+  let parsedIngredients, parsedInstructions;
+  try {
+    parsedIngredients = typeof ingredients === "string" ? JSON.parse(ingredients) : ingredients;
+    parsedInstructions = typeof instructions === "string" ? JSON.parse(instructions) : instructions;
+  } catch (err) {
+    console.log("❌ Error parsing ingredients/instructions:", err);
+    return res.status(400).json({ message: "Invalid ingredients or instructions format." });
   }
 
   const imageUrl = `/uploads/${req.file.filename}`;
@@ -36,9 +42,9 @@ export const createRecipe = async (req, res) => {
     const newRecipe = new Recipe({
       title,
       description,
-      time,
+      cookingTime: Number(cookingTime),
       ingredients: parsedIngredients,
-      steps: parsedSteps,
+      instructions: parsedInstructions,
       imageUrl,
       createdBy: req.user.id, // ✅ Ensure `authMiddleware` sets `id`
     });

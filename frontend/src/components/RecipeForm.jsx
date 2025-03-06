@@ -17,6 +17,7 @@ const RecipeForm = () => {
   });
   const [error, setError] = useState("");
 
+  // ✅ Handle Form Inputs
   const handleChange = (e) => {
     if (e.target.name === "image") {
       setFormData({ ...formData, image: e.target.files[0] });
@@ -25,6 +26,7 @@ const RecipeForm = () => {
     }
   };
 
+  // ✅ Handle Form Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -40,22 +42,21 @@ const RecipeForm = () => {
     const formDataToSend = new FormData();
     formDataToSend.append("title", formData.title);
     formDataToSend.append("description", formData.description);
-    formDataToSend.append("cookingTime", Number(formData.cookingTime)); // ✅ Ensure it's a number
+    formDataToSend.append("cookingTime", Number(formData.cookingTime)); // Ensure it's a number
 
-    // ✅ Convert ingredients & instructions to arrays
+    // ✅ Convert ingredients & instructions to JSON format
     const ingredientsArray = formData.ingredients.split("\n").map((item) => item.trim());
     const instructionsArray = formData.instructions.split("\n").map((item) => item.trim());
 
     formDataToSend.append("ingredients", JSON.stringify(ingredientsArray));
     formDataToSend.append("instructions", JSON.stringify(instructionsArray));
-
     formDataToSend.append("image", formData.image);
 
     try {
-      const response = await axios.post("https://flavournest.onrender.com/recipes", formDataToSend, {
+      const response = await axios.post("https://flavournest.onrender.com/recipes/add", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`, // Include token for authentication
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -112,4 +113,5 @@ const RecipeForm = () => {
 };
 
 export default RecipeForm;
+
 

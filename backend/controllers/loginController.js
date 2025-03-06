@@ -62,7 +62,10 @@ export const getUserProfile = async (req, res) => {
     res.status(404).json({ message: "❌ User not found" });
   }
 };
-
+// ✅ Logout User (Clear Token on Frontend)
+export const logoutUser = async (req, res) => {
+  res.json({ message: "Logout successful" });
+};
 
 
 

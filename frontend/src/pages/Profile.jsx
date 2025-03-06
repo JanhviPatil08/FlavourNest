@@ -15,13 +15,12 @@ const Profile = () => {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        console.log("❌ No token found, redirecting to login.");
         navigate("/login");
         return;
       }
 
       try {
-        const response = await axios.get("https://flavournest.onrender.com/profile", {
+        const response = await axios.get("https://flavournest.onrender.com/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(response.data);
@@ -40,7 +39,6 @@ const Profile = () => {
         });
         setFavorites(response.data);
       } catch (error) {
-        console.error("❌ Error fetching favorites:", error.response?.data?.message || error.message);
         toast.error("Failed to load favorites");
       } finally {
         setLoading(false);
@@ -51,22 +49,6 @@ const Profile = () => {
     fetchFavorites();
   }, [navigate]);
 
-  // ✅ Remove Favorite Recipe
-  const removeFavorite = async (recipeId) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`https://flavournest.onrender.com/users/favorites/${recipeId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setFavorites((prevFavorites) => prevFavorites.filter((recipe) => recipe._id !== recipeId));
-      toast.success("Removed from favorites");
-    } catch (error) {
-      toast.error("Failed to remove favorite");
-    }
-  };
-
-  // ✅ Handle Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     toast.success("Logged out successfully");
@@ -99,11 +81,8 @@ const Profile = () => {
             <Col md={4} key={recipe._id} className="mb-4">
               <Card className="shadow-sm border-0">
                 <Card.Body>
-                  <Card.Title>{recipe.name}</Card.Title>
+                  <Card.Title>{recipe.title}</Card.Title>
                   <Card.Text>{recipe.description}</Card.Text>
-                  <Button variant="outline-danger" onClick={() => removeFavorite(recipe._id)}>
-                    Remove
-                  </Button>
                 </Card.Body>
               </Card>
             </Col>
@@ -115,5 +94,4 @@ const Profile = () => {
 };
 
 export default Profile;
-
 

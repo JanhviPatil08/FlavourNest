@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Spinner, Alert } from "react-bootstrap";
-import RecipeCard from "./RecipeCard";
+import RecipeCard from "../components/RecipeCard";
 
 const Recipes = () => {
   const navigate = useNavigate();

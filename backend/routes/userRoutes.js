@@ -5,7 +5,7 @@ import authMiddleware from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // ✅ Get User Profile
-router.get("/profile", authMiddleware, getUserProfile);
+router.get("/me", authMiddleware, getUserProfile);
 
 // ✅ Get User's Favorite Recipes
 router.get("/favorites", authMiddleware, getFavorites);

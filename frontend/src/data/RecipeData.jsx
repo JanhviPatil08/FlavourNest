@@ -4,7 +4,7 @@ const recipes = [
     title: "Chicken Biryani",
     description: "Aromatic and flavorful rice dish with spices and chicken.",
     image: "/images/biryani.jpg", 
-    time: "1 hour 30 minutes",
+    time: "90 minutes",
     ingredients: [
       "2 cups Basmati Rice",
       "500g Chicken",

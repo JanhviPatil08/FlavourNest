@@ -1,33 +1,64 @@
-import { useEffect, useState } from "react";
-import { Container, Card, Button, Row, Col, Spinner } from "react-bootstrap";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { Container, Row, Col, Card, Button, Spinner } from "react-bootstrap";
 
 const Profile = () => {
   const navigate = useNavigate();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null); // ✅ Store user info
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // ✅ Fetch user authentication status
-    axios
-      .get("https://flavournest.onrender.com/auth/me", { withCredentials: true })
-      .then((res) => setUser(res.data))
-      .catch(() => navigate("/login")); // Redirect if not logged in
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
 
-    axios
-      .get("https://flavournest.onrender.com/users/favorites", { withCredentials: true })
-      .then((res) => setFavorites(res.data))
-      .catch(() => toast.error("Failed to load favorites"))
-      .finally(() => setLoading(false));
+      if (!token) {
+        console.log("❌ No token found, redirecting to login.");
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const response = await axios.get("https://flavournest.onrender.com/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUser(response.data);
+      } catch (error) {
+        console.error("❌ Error fetching user:", error.response?.data?.message || error.message);
+        navigate("/login");
+      }
+    };
+
+    const fetchFavorites = async () => {
+      const token = localStorage.getItem("token");
+
+      try {
+        const response = await axios.get("https://flavournest.onrender.com/users/favorites", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFavorites(response.data);
+      } catch (error) {
+        console.error("❌ Error fetching favorites:", error.response?.data?.message || error.message);
+        toast.error("Failed to load favorites");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+    fetchFavorites();
   }, [navigate]);
 
-  // ✅ Fixed: Added removeFavorite function
+  // ✅ Remove Favorite Recipe
   const removeFavorite = async (recipeId) => {
     try {
-      await axios.delete(`https://flavournest.onrender.com/users/favorites/${recipeId}`, { withCredentials: true });
+      const token = localStorage.getItem("token");
+      await axios.delete(`https://flavournest.onrender.com/users/favorites/${recipeId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       setFavorites((prevFavorites) => prevFavorites.filter((recipe) => recipe._id !== recipeId));
       toast.success("Removed from favorites");
     } catch (error) {
@@ -35,14 +66,12 @@ const Profile = () => {
     }
   };
 
+  // ✅ Handle Logout
   const handleLogout = () => {
-    axios.post("https://flavournest.onrender.com/auth/logout", {}, { withCredentials: true })
-      .then(() => {
-        toast.success("Logged out successfully");
-        setUser(null);
-        navigate("/login"); // Redirect to login after logout
-      })
-      .catch(() => toast.error("Logout failed"));
+    localStorage.removeItem("token");
+    toast.success("Logged out successfully");
+    setUser(null);
+    navigate("/login");
   };
 
   if (loading) return <Spinner animation="border" className="d-block mx-auto mt-5" />;
@@ -50,7 +79,7 @@ const Profile = () => {
   return (
     <Container className="mt-5">
       <h2 className="text-success">Your Profile</h2>
-      
+
       {user ? (
         <div>
           <p><strong>Name:</strong> {user.name}</p>
@@ -86,4 +115,5 @@ const Profile = () => {
 };
 
 export default Profile;
+
 

@@ -36,7 +36,7 @@ const RecipeForm = () => {
     formDataToSend.append("image", formData.image);
 
     try {
-      await axios.post("http://localhost:5000/api/recipes", formDataToSend, {
+      await axios.post("https://flavournest.onrender.com/recipes", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Recipe added successfully!");

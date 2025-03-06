@@ -14,7 +14,7 @@ const Recipes = () => {
   useEffect(() => {
     // ✅ Check if user is logged in
     axios
-      .get("http://localhost:5000/api/auth/me", { withCredentials: true })
+      .get("https://flavournest.onrender.com/auth/me", { withCredentials: true })
       .then((res) => {
         setUser(res.data);
         fetchRecipes();
@@ -26,7 +26,7 @@ const Recipes = () => {
 
   const fetchRecipes = () => {
     axios
-      .get("http://localhost:5000/api/recipes", { withCredentials: true })
+      .get("https://flavournest.onrender.com/recipes", { withCredentials: true })
       .then((res) => {
         setRecipes(res.data);
         setLoading(false);

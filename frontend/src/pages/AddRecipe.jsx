@@ -11,7 +11,7 @@ const AddRecipe = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post("http://localhost:5000/api/recipes", form)
+    axios.post("https://flavournest.onrender.com/recipes", form)
       .then(() => alert("Recipe added successfully!"))
       .catch((err) => console.log(err));
   };

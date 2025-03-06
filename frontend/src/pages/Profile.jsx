@@ -13,12 +13,12 @@ const Profile = () => {
   useEffect(() => {
     // ✅ Fetch user authentication status
     axios
-      .get("http://localhost:5000/api/auth/me", { withCredentials: true })
+      .get("https://flavournest.onrender.com/auth/me", { withCredentials: true })
       .then((res) => setUser(res.data))
       .catch(() => navigate("/login")); // Redirect if not logged in
 
     axios
-      .get("http://localhost:5000/api/users/favorites", { withCredentials: true })
+      .get("https://flavournest.onrender.com/users/favorites", { withCredentials: true })
       .then((res) => setFavorites(res.data))
       .catch(() => toast.error("Failed to load favorites"))
       .finally(() => setLoading(false));
@@ -27,7 +27,7 @@ const Profile = () => {
   // ✅ Fixed: Added removeFavorite function
   const removeFavorite = async (recipeId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/users/favorites/${recipeId}`, { withCredentials: true });
+      await axios.delete(`https://flavournest.onrender.com/users/favorites/${recipeId}`, { withCredentials: true });
       setFavorites((prevFavorites) => prevFavorites.filter((recipe) => recipe._id !== recipeId));
       toast.success("Removed from favorites");
     } catch (error) {
@@ -36,7 +36,7 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true })
+    axios.post("https://flavournest.onrender.com/auth/logout", {}, { withCredentials: true })
       .then(() => {
         toast.success("Logged out successfully");
         setUser(null);

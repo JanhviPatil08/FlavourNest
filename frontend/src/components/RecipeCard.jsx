@@ -10,8 +10,8 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
 
   const handleFavorite = () => {
     const url = favorited
-      ? `http://localhost:5000/api/users/favorites/${recipe._id}`
-      : "http://localhost:5000/api/users/favorites";
+      ? `https://flavournest.onrender.com/users/favorites/${recipe._id}`
+      : "https://flavournest.onrender.com/users/favorites";
 
     axios({
       method: favorited ? "DELETE" : "POST",

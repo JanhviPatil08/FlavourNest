@@ -22,8 +22,8 @@ const Login = () => {
 
     try {
       const url = isRegister
-        ? "http://localhost:5000/api/auth/register"
-        : "http://localhost:5000/api/auth/login";
+        ? "https://flavournest.onrender.com/auth/register"
+        : "https://flavournest.onrender.com/auth/login";
 
       const response = await axios.post(url, formData, { withCredentials: true });
 

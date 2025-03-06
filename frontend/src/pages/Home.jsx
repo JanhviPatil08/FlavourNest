@@ -1,13 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import recipes from "../data/RecipeData";
+import axios from "axios"; // Import Axios for API calls
+import recipesData from "../data/RecipeData"; // Import hardcoded recipes
 import { Container, Row, Col, Card, Button, ListGroup, Modal } from "react-bootstrap";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const Home = () => {
+  const [recipes, setRecipes] = useState([...recipesData]); // Start with hardcoded recipes
   const [favorites, setFavorites] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [show, setShow] = useState(false); // Modal state
+
+  // Fetch backend recipes and combine with hardcoded recipes
+  useEffect(() => {
+    axios.get("https://flavournest.onrender.com/recipes") // Replace with actual backend URL
+      .then((response) => {
+        setRecipes([...recipesData, ...response.data]); // Merge both lists
+      })
+      .catch((error) => {
+        console.error("Error fetching recipes:", error);
+      });
+  }, []);
 
   const toggleFavorite = (id) => {
     setFavorites((prev) =>
@@ -24,8 +37,8 @@ const Home = () => {
     <Container className="mt-4">
       <h1 className="text-center text-success mb-4">Discover New Recipes</h1>
       <Row>
-        {recipes.map((recipe) => (
-          <Col key={recipe.id} md={4} className="mb-4">
+        {recipes.map((recipe, index) => (
+          <Col key={recipe._id || index} md={4} className="mb-4">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -43,9 +56,9 @@ const Home = () => {
                   <Button
                     variant="light"
                     className="favorite-btn ms-2"
-                    onClick={() => toggleFavorite(recipe.id)}
+                    onClick={() => toggleFavorite(recipe._id || index)}
                   >
-                    {favorites.includes(recipe.id) ? <FaHeart color="red" /> : <FaRegHeart />}
+                    {favorites.includes(recipe._id || index) ? <FaHeart color="red" /> : <FaRegHeart />}
                   </Button>
                 </Card.Body>
               </Card>
@@ -64,13 +77,13 @@ const Home = () => {
           <p><strong>Estimated Time:</strong> {selectedRecipe?.time} minutes</p>
           <h5>Ingredients:</h5>
           <ListGroup>
-            {selectedRecipe?.ingredients.map((item, index) => (
+            {selectedRecipe?.ingredients?.map((item, index) => (
               <ListGroup.Item key={index}>{item}</ListGroup.Item>
             ))}
           </ListGroup>
           <h5 className="mt-3">Steps to Make:</h5>
           <ol>
-            {selectedRecipe?.steps.map((step, index) => (
+            {selectedRecipe?.steps?.map((step, index) => (
               <li key={index}>{step}</li>
             ))}
           </ol>
@@ -84,10 +97,4 @@ const Home = () => {
 };
 
 export default Home;
-
-
-
-
-
-
 

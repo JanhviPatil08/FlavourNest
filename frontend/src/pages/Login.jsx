@@ -3,6 +3,7 @@ import { Container, Card, Form, Button, Alert, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,18 +29,23 @@ const Login = () => {
       const response = await axios.post(url, formData, { withCredentials: true });
 
       if (response.status === 200 || response.status === 201) {
-        toast.success(isRegister ? "Registration successful! Please login." : "Login successful!");
-
-        if (!isRegister) {
-          localStorage.setItem("token", response.data.token); // ✅ Store token for authentication
-          navigate("/profile"); // ✅ Redirect after login
+        if (isRegister) {
+          toast.success("🎉 Registration successful! Please login.");
+          setIsRegister(false); // Switch to login after successful registration
+        } else {
+          toast.success("✅ Login successful!");
+          localStorage.setItem("token", response.data.token); // Store token
+          navigate("/profile"); // Redirect after login
         }
       } else {
         throw new Error("Unexpected response from server.");
       }
     } catch (err) {
-      console.error("Login/Register Error:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Something went wrong! Please try again.");
+      if (err.response?.status === 400 && err.response?.data?.message === "User already exists") {
+        toast.error("⚠️ This email is already registered. Try logging in.");
+      } else {
+        setError(err.response?.data?.message || "Something went wrong! Please try again.");
+      }
     } finally {
       setLoading(false);
     }

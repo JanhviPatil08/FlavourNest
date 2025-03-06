@@ -10,7 +10,7 @@ export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
-    console.log("❌ Missing fields:", { name, email, password }); // ✅ Debug log
+    console.log("❌ Missing fields:", { name, email, password });
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -26,7 +26,7 @@ export const registerUser = async (req, res) => {
 
     const user = await User.create({ name, email, password: hashedPassword });
 
-    console.log("✅ User registered successfully:", user); // ✅ Debug log before sending response
+    console.log("✅ User registered successfully:", user);
 
     res.status(201).json({
       _id: user._id,
@@ -42,14 +42,13 @@ export const registerUser = async (req, res) => {
 
 // ✅ Login User
 export const loginUser = async (req, res) => {
-  console.log("📌 Request Headers:", req.headers); 
   console.log("📌 Login Data Received:", req.body);
   const { email, password } = req.body;
 
   if (!email || !password) {
-    console.log("❌ Missing Fields:", { email, password }); // ✅ Debugging log
     return res.status(400).json({ message: "All fields are required" });
-    }
+  }
+
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -69,13 +68,26 @@ export const loginUser = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      token:generateToken(user._id),
+      token: generateToken(user._id),
     });
   } catch (error) {
     console.error("❌ Login Error:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
+// ✅ Get Logged-in User Profile (Fix for /auth/me Not Found)
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password"); // Exclude password
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 
 

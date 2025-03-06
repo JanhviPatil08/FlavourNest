@@ -9,9 +9,10 @@ const RecipeForm = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
+    description: "", 
     ingredients: "",
     instructions: "",
-    cookingTime: "", // Added cooking time
+    cookingTime: "",
     image: null,
   });
   const [error, setError] = useState("");
@@ -30,9 +31,10 @@ const RecipeForm = () => {
 
     const formDataToSend = new FormData();
     formDataToSend.append("title", formData.title);
+    formDataToSend.append("description", formData.description); // Include description
     formDataToSend.append("ingredients", formData.ingredients);
     formDataToSend.append("instructions", formData.instructions);
-    formDataToSend.append("cookingTime", formData.cookingTime); // Include cooking time
+    formDataToSend.append("cookingTime", formData.cookingTime);
     formDataToSend.append("image", formData.image);
 
     try {
@@ -56,6 +58,11 @@ const RecipeForm = () => {
         <Form.Group className="mb-3">
           <Form.Label>Recipe Title</Form.Label>
           <Form.Control type="text" name="title" value={formData.title} onChange={handleChange} required />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Description</Form.Label>
+          <Form.Control as="textarea" rows={2} name="description" value={formData.description} onChange={handleChange} required />
         </Form.Group>
 
         <Form.Group className="mb-3">
@@ -85,4 +92,3 @@ const RecipeForm = () => {
 };
 
 export default RecipeForm;
-

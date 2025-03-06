@@ -13,22 +13,20 @@ const RecipeForm = () => {
     ingredients: "",
     instructions: "",
     cookingTime: "",
-    image: null,
+    imageUrl: null,
   });
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Handle Input Changes
   const handleChange = (e) => {
-    if (e.target.name === "image") {
-      setFormData({ ...formData, image: e.target.files[0] });
+    if (e.target.name === "imageUrl") {
+      setFormData({ ...formData, imageUrl: e.target.files[0] });
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
   };
 
-  // ✅ Handle Form Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -36,15 +34,12 @@ const RecipeForm = () => {
 
     const token = localStorage.getItem("token");
     if (!token) {
-      setError("User not logged in. Please log in first.");
       toast.error("User not logged in. Please log in first.");
       setLoading(false);
       return;
     }
 
-    // ✅ Ensure all fields are filled
-    if (!formData.title || !formData.description || !formData.cookingTime || !formData.ingredients || !formData.instructions || !formData.image) {
-      setError("All fields including an image are required.");
+    if (!formData.title || !formData.description || !formData.cookingTime || !formData.ingredients || !formData.instructions || !formData.imageUrl) {
       toast.error("All fields including an image are required.");
       setLoading(false);
       return;
@@ -53,33 +48,27 @@ const RecipeForm = () => {
     const formDataToSend = new FormData();
     formDataToSend.append("title", formData.title);
     formDataToSend.append("description", formData.description);
-    formDataToSend.append("cookingTime", Number(formData.cookingTime)); // ✅ Ensure it's a number
+    formDataToSend.append("cookingTime", Number(formData.cookingTime));
 
-    // ✅ Convert ingredients & instructions to JSON arrays
     const ingredientsArray = formData.ingredients.split("\n").map((item) => item.trim());
     const instructionsArray = formData.instructions.split("\n").map((item) => item.trim());
 
     formDataToSend.append("ingredients", JSON.stringify(ingredientsArray));
     formDataToSend.append("instructions", JSON.stringify(instructionsArray));
-    formDataToSend.append("image", formData.image);
-
-    console.log("📌 Submitting Recipe Data:", formDataToSend);
+    formDataToSend.append("imageUrl", formData.imageUrl);
 
     try {
-      const response = await axios.post("https://flavournest.onrender.com/recipes", formDataToSend, {
+      await axios.post("https://flavournest.onrender.com/recipes", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
 
-      console.log("✅ Recipe Added Successfully:", response.data);
       toast.success("Recipe added successfully!");
       setLoading(false);
       navigate("/");
     } catch (err) {
-      console.error("❌ Error adding recipe:", err.response?.data);
-      setError(err.response?.data?.message || "Error adding recipe.");
       toast.error(err.response?.data?.message || "Error adding recipe.");
       setLoading(false);
     }
@@ -118,7 +107,7 @@ const RecipeForm = () => {
 
         <Form.Group className="mb-3">
           <Form.Label>Recipe Image</Form.Label>
-          <Form.Control type="file" name="image" onChange={handleChange} required />
+          <Form.Control type="file" name="imageUrl" onChange={handleChange} required />
         </Form.Group>
 
         <Button type="submit" variant="success" className="w-100" disabled={loading}>
@@ -130,3 +119,4 @@ const RecipeForm = () => {
 };
 
 export default RecipeForm;
+

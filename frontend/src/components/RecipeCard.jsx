@@ -6,14 +6,11 @@ import { Heart, HeartFill } from "react-bootstrap-icons";
 
 const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
   const [favorited, setFavorited] = useState(isFavorite);
-  const [show, setShow] = useState(false); // Modal state
+  const [show, setShow] = useState(false);
 
-  // ✅ Get Correct Image URL
-  const imageUrl = recipe.imageUrl?.startsWith("/uploads/")
-    ? `https://flavournest.onrender.com${recipe.imageUrl}`
-    : recipe.imageUrl;
+  // 🔹 FIXED: Ensure correct image URL is used
+  const imageUrl = recipe.imageUrl || "https://flavournest.onrender.com/uploads/default.jpg";
 
-  // ✅ Handle Favorite (Like/Unlike)
   const handleFavorite = () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -41,7 +38,7 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
 
   return (
     <>
-      {/* ✅ Recipe Card - Shows Image, Title, Description & Like Button */}
+      {/* 🔹 FIXED: Ensures image loads properly */}
       <Card className="recipe-card">
         <Card.Img variant="top" src={imageUrl} alt={recipe.title} />
         <Card.Body>
@@ -54,7 +51,7 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
         </Card.Body>
       </Card>
 
-      {/* ✅ Recipe Details Modal */}
+      {/* 🔹 FIXED: Modal correctly displays all details */}
       <Modal show={show} onHide={() => setShow(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>{recipe.title}</Modal.Title>
@@ -63,7 +60,6 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
           <img src={imageUrl} alt={recipe.title} className="img-fluid rounded mb-3" />
           <p><strong>Cooking Time:</strong> {recipe.cookingTime ? `${recipe.cookingTime} minutes` : "N/A"}</p>
           
-          {/* ✅ Ingredients List */}
           <h5>Ingredients:</h5>
           <ul>
             {Array.isArray(recipe.ingredients)
@@ -71,7 +67,6 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
               : <li>No ingredients available</li>}
           </ul>
 
-          {/* ✅ Instructions List */}
           <h5>Instructions:</h5>
           <ol>
             {Array.isArray(recipe.instructions)

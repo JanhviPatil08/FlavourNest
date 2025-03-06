@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { Container, Row, Col, Spinner, Alert } from "react-bootstrap";
-import RecipeCard from "../components/RecipeCard";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Container, Row, Col, Spinner, Alert } from "react-bootstrap";
+import RecipeCard from "./RecipeCard";
 
 const Recipes = () => {
   const navigate = useNavigate();
@@ -12,21 +12,32 @@ const Recipes = () => {
   const [user, setUser] = useState(null); // ✅ Track user authentication
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     // ✅ Check if user is logged in
     axios
-      .get("https://flavournest.onrender.com/auth/me", { withCredentials: true })
+      .get("https://flavournest.onrender.com/auth/me", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       .then((res) => {
         setUser(res.data);
-        fetchRecipes();
+        fetchRecipes(token);
       })
       .catch(() => {
         navigate("/login"); // Redirect to login if not authenticated
       });
   }, [navigate]);
 
-  const fetchRecipes = () => {
+  const fetchRecipes = (token) => {
     axios
-      .get("https://flavournest.onrender.com/recipes", { withCredentials: true })
+      .get("https://flavournest.onrender.com/recipes", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       .then((res) => {
         setRecipes(res.data);
         setLoading(false);
@@ -65,4 +76,5 @@ const Recipes = () => {
 };
 
 export default Recipes;
+
 

@@ -15,26 +15,32 @@ export const getRecipes = async (req, res) => {
 // ✅ Create a New Recipe (With Image Upload)
 export const createRecipe = async (req, res) => {
   console.log("📌 Received Recipe Data:", req.body);
-  console.log("📌 User ID from Token:", req.user?._id);
-  console.log("📌 Uploaded Image:", req.file); // ✅ Debugging log
+  console.log("📌 User ID from Token:", req.user?.id);
+  console.log("📌 Uploaded Image:", req.file);
 
   const { title, description, time, ingredients, steps } = req.body;
-  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-  if (!title || !description || !time || !ingredients || !steps || !imageUrl) {
+  // ✅ Ensure `ingredients` and `steps` are arrays
+  const parsedIngredients = Array.isArray(ingredients) ? ingredients : ingredients.split(",");
+  const parsedSteps = Array.isArray(steps) ? steps : steps.split(".");
+
+  // ✅ Check for missing fields
+  if (!title || !description || !time || !parsedIngredients.length || !parsedSteps.length || !req.file) {
     console.log("❌ Missing Fields:", { title, description, time, ingredients, steps, imageUrl });
-    return res.status(400).json({ message: "All fields including an image are required" });
+    return res.status(400).json({ message: "All fields, including an image, are required" });
   }
+
+  const imageUrl = `/uploads/${req.file.filename}`;
 
   try {
     const newRecipe = new Recipe({
       title,
       description,
       time,
-      ingredients,
-      steps,
+      ingredients: parsedIngredients,
+      steps: parsedSteps,
       imageUrl,
-      createdBy: req.user._id, // Ensure `protect` middleware attaches user
+      createdBy: req.user.id, // ✅ Ensure `authMiddleware` sets `id`
     });
 
     await newRecipe.save();
@@ -45,6 +51,7 @@ export const createRecipe = async (req, res) => {
     res.status(500).json({ message: "Failed to create recipe." });
   }
 };
+
 
 
 

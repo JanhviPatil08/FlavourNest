@@ -4,23 +4,30 @@ import authMiddleware from "../middleware/authMiddleware.js";
 import multer from "multer";
 import fs from "fs";
 
-// ✅ Ensure `uploads/` directory exists
-const uploadDir = "uploads/";
+const uploadDir = "public/uploads/";
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+  fs.mkdirSync(uploadDir, { recursive: true }); // ✅ Ensure all parent folders exist
 }
 
-// ✅ Multer Storage Configuration (Stores file with original name)
+// ✅ Multer Storage Configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 
-const upload = multer({ storage });
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only images are allowed!"), false);
+  }
+};
+
+const upload = multer({ storage, fileFilter });
 
 const router = express.Router();
 
@@ -31,6 +38,3 @@ router.get("/", getRecipes);
 router.post("/", authMiddleware, upload.single("image"), createRecipe);
 
 export default router;
-
-
-

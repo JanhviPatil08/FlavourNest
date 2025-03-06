@@ -31,7 +31,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/recipes", recipeRoutes);
 app.use("/users", userRoutes);
-app.use("/uploads", express.static("uploads")); // Serve uploaded images
+app.use("/uploads", express.static("public/uploads")); // Serve uploaded images
 
 // ✅ MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI;

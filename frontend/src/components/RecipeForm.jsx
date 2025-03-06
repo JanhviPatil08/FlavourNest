@@ -40,21 +40,30 @@ const RecipeForm = () => {
     const formDataToSend = new FormData();
     formDataToSend.append("title", formData.title);
     formDataToSend.append("description", formData.description);
-    formDataToSend.append("ingredients", formData.ingredients);
-    formDataToSend.append("instructions", formData.instructions);
-    formDataToSend.append("cookingTime", formData.cookingTime);
+    formDataToSend.append("cookingTime", Number(formData.cookingTime)); // ✅ Ensure it's a number
+
+    // ✅ Convert ingredients & instructions to arrays
+    const ingredientsArray = formData.ingredients.split("\n").map((item) => item.trim());
+    const instructionsArray = formData.instructions.split("\n").map((item) => item.trim());
+
+    formDataToSend.append("ingredients", JSON.stringify(ingredientsArray));
+    formDataToSend.append("instructions", JSON.stringify(instructionsArray));
+
     formDataToSend.append("image", formData.image);
 
     try {
-      await axios.post("https://flavournest.onrender.com/recipes", formDataToSend, {
+      const response = await axios.post("https://flavournest.onrender.com/recipes", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`, // Include token for authentication
         },
       });
+
+      console.log("✅ Recipe Added Successfully:", response.data);
       toast.success("Recipe added successfully!");
       navigate("/");
     } catch (err) {
+      console.error("❌ Error adding recipe:", err.response?.data);
       setError(err.response?.data?.message || "Error adding recipe");
       toast.error(err.response?.data?.message || "Error adding recipe");
     }
@@ -77,12 +86,12 @@ const RecipeForm = () => {
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label>Ingredients</Form.Label>
+          <Form.Label>Ingredients (One per line)</Form.Label>
           <Form.Control as="textarea" rows={3} name="ingredients" value={formData.ingredients} onChange={handleChange} required />
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label>Instructions</Form.Label>
+          <Form.Label>Instructions (One per line)</Form.Label>
           <Form.Control as="textarea" rows={5} name="instructions" value={formData.instructions} onChange={handleChange} required />
         </Form.Group>
 
@@ -103,3 +112,4 @@ const RecipeForm = () => {
 };
 
 export default RecipeForm;
+

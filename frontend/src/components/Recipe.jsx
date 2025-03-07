@@ -1,65 +1,50 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom"; // ✅ Import useNavigate
 import axios from "axios";
-import { Container, Spinner, Card, ListGroup } from "react-bootstrap";
+import { toast } from "react-toastify"; // ✅ Import toast notifications
 
 const Recipe = () => {
-  const { id } = useParams(); // ✅ Get recipe ID from URL
+  const { id } = useParams();
+  const navigate = useNavigate(); // ✅ Define navigate
   const [recipe, setRecipe] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRecipe = async () => {
-      try {
-        const response = await axios.get(`https://flavournest.onrender.com/recipes/${id}`);
-        if (response.data) {
-          setRecipe(response.data);
-        } else {
-          toast.error("Recipe not found!");
-          navigate("/recipes");
-        }
-      } catch (error) {
-        toast.error("Error fetching recipe. Please try again!");
-        navigate("/recipes");
-      }
-    };
-  
-    fetchRecipe();
+    axios.get(`https://flavournest.onrender.com/recipes/${id}`)
+      .then(response => setRecipe(response.data))
+      .catch(error => {
+        toast.error("Error fetching recipe!"); // ✅ Show error toast
+        console.error("Error fetching recipe:", error);
+        navigate("/recipes"); // ✅ Redirect if recipe is not found
+      });
   }, [id, navigate]);
-  
 
-  if (loading) return <Spinner animation="border" className="d-block mx-auto mt-5" />;
-  if (!recipe) return <h2 className="text-center text-danger">❌ Recipe Not Found!</h2>;
+  if (!recipe) {
+    return <h2 className="text-center">Recipe Not Found!</h2>;
+  }
 
   return (
-    <Container className="mt-5">
-      <Card className="shadow-lg">
-        <Card.Img variant="top" src={recipe.imageUrl} alt={recipe.title} />
-        <Card.Body>
-          <Card.Title>{recipe.title}</Card.Title>
-          <Card.Text>{recipe.description}</Card.Text>
+    <div className="container my-5">
+      <h2 className="text-center">{recipe.title}</h2>
+      <img src={recipe.imageUrl} className="img-fluid rounded mx-auto d-block my-3" alt={recipe.title} />
+      <p className="text-muted text-center">{recipe.description}</p>
 
-          <h5>Ingredients:</h5>
-          <ListGroup>
-            {recipe.ingredients?.map((item, index) => (
-              <ListGroup.Item key={index}>{item}</ListGroup.Item>
-            ))}
-          </ListGroup>
+      <h4>Ingredients:</h4>
+      <ul>
+        {recipe.ingredients.map((ingredient, index) => (
+          <li key={index}>{ingredient}</li>
+        ))}
+      </ul>
 
-          <h5 className="mt-3">Instructions:</h5>
-          <ol>
-            {recipe.instructions?.map((step, index) => (
-              <li key={index}>{step}</li>
-            ))}
-          </ol>
+      <h4>Instructions:</h4>
+      <ol>
+        {recipe.instructions.map((step, index) => (
+          <li key={index}>{step}</li>
+        ))}
+      </ol>
 
-          <p><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
-        </Card.Body>
-      </Card>
-    </Container>
+      <p><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
+    </div>
   );
 };
 
 export default Recipe;
-
-

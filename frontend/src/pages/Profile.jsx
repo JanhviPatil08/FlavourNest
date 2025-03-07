@@ -12,7 +12,7 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchUserAndFavorites = async () => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authToken");  // ✅ Fix: Correct key
   
       if (!token) {
         toast.error("User not logged in. Please log in first.");
@@ -20,27 +20,27 @@ const Profile = () => {
       }
   
       try {
-        const userResponse = await axios.get("https://flavournest.onrender.com/users/me", {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          }
-          
+        // ✅ Fix: Use correct profile API
+        const userResponse = await axios.get("https://flavournest.onrender.com/auth/me", {
+          headers: { Authorization: `Bearer ${token}` },
         });
         setUser(userResponse.data);
-  
+
+        // ✅ Fix: Ensure favorites API exists
         const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          }
-          
+          headers: { Authorization: `Bearer ${token}` },
         });
         setFavorites(favoritesResponse.data);
+
       } catch (error) {
-        toast.error("Session expired. Please log in again.");
-        localStorage.removeItem("token");  // ✅ Remove token **only** if there's an error!
-        navigate("/login");
+        console.error("Profile fetch error:", error);
+
+        // ✅ Fix: Only remove token if it's a 401 Unauthorized error
+        if (error.response && error.response.status === 401) {
+          toast.error("Session expired. Please log in again.");
+          localStorage.removeItem("authToken");
+          navigate("/login");
+        }
       } finally {
         setLoading(false);
       }
@@ -48,10 +48,9 @@ const Profile = () => {
   
     fetchUserAndFavorites();
   }, [navigate]);
-  
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");  // ✅ Fix: Correct key
     toast.success("Logged out successfully!");
     navigate("/login");
   };
@@ -100,4 +99,3 @@ const Profile = () => {
 };
 
 export default Profile;
-

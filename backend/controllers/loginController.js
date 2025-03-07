@@ -82,5 +82,11 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+const loginController = {
+  registerUser,
+  loginUser,
+  logoutUser,
+  getUserProfile,
+};
 
 export default loginController;

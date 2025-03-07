@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { Container, Card, Form, Button, Alert, Spinner } from "react-bootstrap";
+import { Container, Card, Form, Button, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import toast styles
+import "react-toastify/dist/ReactToastify.css"; 
 
 const Login = () => {
   const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
-  const [error, setError] = useState("");  // ✅ FIXED: Defined `setError`
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -19,27 +18,24 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-  
+
     try {
       const url = isRegister
         ? "https://flavournest.onrender.com/auth/register"
         : "https://flavournest.onrender.com/auth/login";
-  
+
       const response = await axios.post(url, formData, { withCredentials: true });
-  
+
       if (response.status === 200 || response.status === 201) {
-        const { token } = response.data;
-  
-        if (!token) {
-          throw new Error("No token received. Login failed.");
-        }
-  
-        localStorage.setItem("token", response.data.token);  // ✅ Ensure token is stored
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`; // ✅ Set default header
-  
         toast.success(isRegister ? "🎉 Registration successful! Please login." : "✅ Login successful!");
-        navigate("/profile");  // ✅ Navigate after login
+
+        localStorage.setItem("token", response.data.token); // Store token only on login
+
+        if (!isRegister) {
+          navigate("/profile"); // Redirect after login
+        } else {
+          setIsRegister(false); // Switch to login form after registration
+        }
       } else {
         throw new Error("Unexpected response from server.");
       }
@@ -49,7 +45,7 @@ const Login = () => {
       setLoading(false);
     }
   };
-  
+
   return (
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
       <Card className="p-4 shadow-lg rounded-4" style={{ width: "100%", maxWidth: "400px" }}>
@@ -57,7 +53,6 @@ const Login = () => {
           <h2 className="text-center text-success fw-bold">
             {isRegister ? "Join FlavourNest" : "Welcome Back"}
           </h2>
-          {error && <Alert variant="danger">{error}</Alert>}
           
           <Form onSubmit={handleSubmit}>
             {isRegister && (

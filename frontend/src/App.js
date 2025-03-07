@@ -8,24 +8,24 @@ import Home from "./pages/Home";
 import RecipeForm from "./components/RecipeForm";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
-import RecipeList from "./components/RecipeList";
-import Recipes from "./pages/Recipes";  // ✅ Changed from RecipeData to Recipes
+import RecipeList from "./components/RecipeList";  // ✅ Updated
 import Recipe from "./components/Recipe";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <Router>
       <div className="app-container">
         <Navbar />
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />  {/* ✅ Ensures toasts appear */}
         <div className="content">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/add-recipe" element={<RecipeForm />} />
+            <Route path="/" element={<Home />} />  {/* ✅ Changed `/home` to `/` for default landing */}
             <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/recipes" element={<Recipes />} />  {/* ✅ Fixed Route */}
-            <Route path="/recipe/:id" element={<Recipe />} />  {/* ✅ Fixed Dynamic Recipe Route */}
-            <Route path="/recipes" element={<RecipeList />} />
+            <Route path="/recipes" element={<RecipeList />} />  {/* ✅ Fixed route to show recipe list */}
+            <Route path="/recipe/:id" element={<Recipe />} />  {/* ✅ Dynamic route for individual recipes */}
           </Routes>
         </div>
         <Footer />

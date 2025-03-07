@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import UserModel from "../models/userModel.js"; // Ensure correct path
+import UserModel from "../models/User.js"; // Ensure correct path
 
 export const protect = async (req, res, next) => {
   let token = req.headers.authorization;

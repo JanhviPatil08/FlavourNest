@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
-import recipesData from "../data/RecipeData"; // Import frontend recipes
+import recipesData from "../data/RecipeData"; // Import frontend hardcoded recipes
 import { Container, Row, Col, Card, Button, ListGroup, Modal } from "react-bootstrap";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaRegHeart } from "react-icons/fa"; // Restore heart icon for favorites
 
 const Home = () => {
   const [recipes, setRecipes] = useState([...recipesData]);  
@@ -13,7 +13,7 @@ const Home = () => {
 
   // ✅ Fetch backend recipes and combine with frontend recipes
   useEffect(() => {
-    axios.get("http://localhost:5000/recipes") // Change for local testing
+    axios.get("http://localhost:5000/recipes") // Use localhost for local testing
       .then((response) => {
         setRecipes([...recipesData, ...response.data]); 
       })
@@ -22,6 +22,12 @@ const Home = () => {
         setRecipes(recipesData); // Fallback to frontend recipes if backend fails
       });
   }, []);
+
+  const toggleFavorite = (id) => {
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((fav) => fav !== id) : [...prev, id]
+    );
+  };
 
   const handleViewRecipe = (recipe) => {
     setSelectedRecipe(recipe);
@@ -41,19 +47,28 @@ const Home = () => {
                   variant="top" 
                   src={
                     recipe.imageUrl?.startsWith("http") 
-                      ? recipe.imageUrl  
+                      ? recipe.imageUrl  // Load backend image (full URL)
                       : recipe.image 
-                        ? `/images/${recipe.image}`  
-                        : `http://localhost:5000/uploads/${recipe.imageUrl || recipe.image}`
+                        ? `/images/${recipe.image}`  // Load frontend image from `public/images/`
+                        : `http://localhost:5000/uploads/${recipe.imageUrl || recipe.image}` // Backend image
                   } 
                   alt={recipe.title} 
-                  onError={(e) => { e.target.src = "/images/default-image.jpg"; }} 
+                  onError={(e) => { e.target.src = "/images/default-image.jpg"; }} // Show default image if missing
                 />
                 <Card.Body>
                   <Card.Title>{recipe.title}</Card.Title>
                   <Card.Text>{recipe.description}</Card.Text>
+                  
                   <Button variant="success" onClick={() => handleViewRecipe(recipe)}>
                     View Recipe
+                  </Button>
+                  {/* ✅ Restored Favorite (Heart) Button */}
+                  <Button
+                    variant="light"
+                    className="favorite-btn ms-2"
+                    onClick={() => toggleFavorite(recipe._id || index)}
+                  >
+                    {favorites.includes(recipe._id || index) ? <FaHeart color="red" /> : <FaRegHeart />}
                   </Button>
                 </Card.Body>
               </Card>
@@ -62,7 +77,7 @@ const Home = () => {
         ))}
       </Row>
 
-      {/* ✅ Fixed Modal: Now Displays "Instructions" Instead of "Steps to Make" */}
+      {/* ✅ Fixed Modal: Now Displays Images Correctly */}
       <Modal show={show} onHide={() => setShow(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>{selectedRecipe?.title}</Modal.Title>
@@ -73,7 +88,7 @@ const Home = () => {
               selectedRecipe?.imageUrl?.startsWith("http") 
                 ? selectedRecipe.imageUrl 
                 : selectedRecipe?.image 
-                  ? `/images/${selectedRecipe.image}`  
+                  ? `/images/${selectedRecipe.image}`  // Load frontend images from `public/images/`
                   : `http://localhost:5000/uploads/${selectedRecipe?.imageUrl || selectedRecipe?.image}`
             }
             alt={selectedRecipe?.title}
@@ -89,10 +104,10 @@ const Home = () => {
             ))}
           </ListGroup>
 
-          {/* ✅ Now Showing "Instructions" Instead of "Steps to Make" */}
+          {/* ✅ Now Showing Instructions for Both Frontend & Backend Recipes */}
           <h5 className="mt-3">Instructions:</h5>
           <ol>
-            {selectedRecipe?.instructions?.length > 0 
+            {selectedRecipe?.instructions && selectedRecipe.instructions.length > 0 
               ? selectedRecipe.instructions.map((step, index) => <li key={index}>{step}</li>)
               : <li>No Instructions Available</li>}
           </ol>
@@ -106,4 +121,5 @@ const Home = () => {
 };
 
 export default Home;
+
 

@@ -25,6 +25,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/recipes" element={<Recipes />} />  {/* ✅ Fixed Route */}
             <Route path="/recipe/:id" element={<Recipe />} />  {/* ✅ Fixed Dynamic Recipe Route */}
+            <Route path="/recipes" element={<RecipeList />} />
           </Routes>
         </div>
         <Footer />

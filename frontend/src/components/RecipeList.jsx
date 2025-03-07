@@ -10,6 +10,7 @@ function RecipeList() {
       <div className="row">
         {recipes.map((recipe) => (
           <div key={recipe.id} className="col-md-4 mb-4">
+            <Recipe recipe={recipe} />
             <div className="card">
               <img src={recipe.image} className="card-img-top" alt={recipe.title} />
               <div className="card-body">

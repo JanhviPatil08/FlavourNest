@@ -13,7 +13,7 @@ const recipes = [
       "1/2 cup Yogurt",
       "Spices (Turmeric, Coriander, Cumin, Garam Masala)",
     ],
-    steps: [
+    instructions: [
       "Wash and soak rice for 30 minutes.",
       "Cook chicken with spices and tomatoes until tender.",
       "Layer rice and chicken in a pot and cook on low heat.",
@@ -34,7 +34,7 @@ const recipes = [
       "1 cup Mozzarella Cheese",
       "Toppings (Olives, Peppers, Pepperoni)",
     ],
-    steps: [
+    instructions: [
       "Prepare the dough and let it rise.",
       "Roll out the dough and spread tomato sauce.",
       "Add cheese and toppings of choice.",
@@ -54,7 +54,7 @@ const recipes = [
       "2 tbsp Ghee",
       "Dry Fruits (Cashews, Almonds, Raisins)",
     ],
-    steps: [
+    instructions: [
       "Heat ghee in a pan and add grated carrots.",
       "Cook until carrots soften, then add milk and sugar.",
       "Simmer until thickened, stirring occasionally.",
@@ -76,7 +76,7 @@ const recipes = [
       "Saffron Strands",
       "Chopped Nuts (Pistachios, Almonds)",
     ],
-    steps: [
+    instructions: [
       "Boil milk and add lemon juice to curdle it.",
       "Strain and knead the paneer into a smooth dough.",
       "Shape into small balls and boil in sugar syrup.",
@@ -101,7 +101,7 @@ const recipes = [
       "Salt and Pepper to taste",
       "1/2 cup Parmesan Cheese",
     ],
-    steps: [
+    instructions: [
       "Boil pasta in salted water until al dente, then drain.",
       "Heat olive oil in a pan and sauté onions and garlic.",
       "Add tomato puree, cook for 5 minutes, then add heavy cream.",

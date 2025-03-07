@@ -83,4 +83,4 @@ const getUserProfile = async (req, res) => {
 };
 
 
-export default {loginUser,registerUser,logoutUser,getUserProfile};
+export default loginController;

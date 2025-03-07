@@ -1,25 +1,18 @@
 import express from "express";
-import { registerUser, loginUser, logoutUser,getUserProfile } from "../controllers/loginController.js";
+import loginController from "../controllers/loginController.js";  // Import default object
+
 import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // ✅ Register & Login Routes
-router.post("/register", registerUser);
-router.post("/login", loginUser);
+router.post("/register", loginController.registerUser);
+router.post("/login", loginController.loginUser);
 
 // ✅ Protected route to get user profile
-router.get("/me", authMiddleware, getUserProfile);
+router.get("/me", authMiddleware, loginController.getUserProfile);
 
 // ✅ Logout route
-router.post("/logout", authMiddleware, logoutUser);
+router.post("/logout", authMiddleware, loginController.logoutUser);
 
 export default router;
-
-
-
-
-
-
-
-

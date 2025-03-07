@@ -15,6 +15,7 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // ✅ Handle form submission for registration or login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -29,7 +30,7 @@ const Login = () => {
       if (response.status === 200 || response.status === 201) {
         toast.success(isRegister ? "🎉 Registration successful! Please login." : "✅ Login successful!");
 
-        // ✅ No need to store token in localStorage, use it from backend
+        // ✅ Store the token in memory (not in localStorage) for this session
         axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
 
         // ✅ Redirect after successful login

@@ -55,7 +55,10 @@ export const getUserProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.json(user);
+    res.json({_id: user._id,
+      name: user.name,
+      email: user.email,
+      favoriteRecipes: user.favoriteRecipes, });
   } catch (error) {
     console.error("Error fetching user profile:", error);
     res.status(500).json({ message: "Server error" });

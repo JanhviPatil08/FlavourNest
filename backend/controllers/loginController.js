@@ -2,7 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET);
 
 // ✅ Register User
 const registerUser = async (req, res) => {

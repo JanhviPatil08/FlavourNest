@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
 // ✅ Register User
-export const registerUser = async (req, res) => {
+const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -28,7 +28,7 @@ export const registerUser = async (req, res) => {
 };
 
 // ✅ Login User (Store Token in DB)
-export const loginUser = async (req, res) => {
+ const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -53,7 +53,7 @@ export const loginUser = async (req, res) => {
 };
 
 // ✅ Logout User (Clear Token from DB)
-export const logoutUser = async (req, res) => {
+const logoutUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -66,4 +66,4 @@ export const logoutUser = async (req, res) => {
   }
 };
 
-
+export default {loginUser,registerUser,logoutUser};

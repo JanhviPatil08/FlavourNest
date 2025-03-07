@@ -25,7 +25,8 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
             <Route path="/recipes" element={<RecipeList />} />  {/* ✅ Fixed route to show recipe list */}
-            <Route path="/recipe/:id" element={<Recipe />} />  {/* ✅ Dynamic route for individual recipes */}
+            <Route path="/recipeform" element={<RecipeForm />} /> 
+            <Route path="/recipe/:id" element={<Recipe />} /> {/* ✅ Dynamic route for individual recipes */}
           </Routes>
         </div>
         <Footer />

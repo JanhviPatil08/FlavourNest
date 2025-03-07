@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";  
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -25,12 +25,18 @@ const Profile = () => {
         const userResponse = await axios.get("https://flavournest.onrender.com/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUser(userResponse.data);
+
+        if (userResponse.status === 200) {
+          setUser(userResponse.data);
+        } else {
+          throw new Error("Failed to fetch user.");
+        }
 
         // ✅ Fetch favorite recipes
         const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         setFavorites(favoritesResponse.data);
       } catch (error) {
         toast.error("Session expired. Please log in again.");
@@ -94,4 +100,3 @@ const Profile = () => {
 };
 
 export default Profile;
-

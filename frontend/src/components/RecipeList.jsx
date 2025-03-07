@@ -25,7 +25,7 @@ function RecipeList() {
 
   return (
     <div className="container">
-      <h2 className="text-center my-4">Our Recipes</h2>
+      <h2 className="text-center my-4">Your Recipes</h2>
 
       {recipes.length === 0 ? (
         <p className="text-center text-danger">No recipes available.</p>

@@ -65,5 +65,22 @@ const logoutUser = async (req, res) => {
     res.status(500).json({ message: "❌ Logout failed" });
   }
 };
+// ✅ Get User Profile
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password -token"); // Exclude password and token
+    if (!user) {
+      return res.status(404).json({ message: "❌ User not found" });
+    }
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "❌ Failed to get user profile" });
+  }
+};
 
-export default {loginUser,registerUser,logoutUser};
+
+export default {loginUser,registerUser,logoutUser,getUserProfile};

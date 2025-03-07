@@ -2,9 +2,6 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/loginRoutes.js";
 import recipeRoutes from "./routes/recipeRoutes.js";
@@ -12,18 +9,8 @@ import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
-// ✅ Fix `__dirname` for ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// ✅ Ensure `uploads/` directory exists
-const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
 
 // ✅ Fix CORS Issue - Allow frontend requests
 app.use(cors({
@@ -35,9 +22,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Serve uploaded images correctly (IMPORTANT FIX)
-app.use("/uploads", express.static(uploadDir));
-
 app.get("/", (req, res) => {
   res.send("🚀 FOODGRAM API is running...");
 });
@@ -46,8 +30,6 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/recipes", recipeRoutes);
 app.use("/users", userRoutes);
-app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
-
 
 // ✅ MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI;

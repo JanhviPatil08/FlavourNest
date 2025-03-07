@@ -1,47 +1,68 @@
-import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { Container, Card, ListGroup } from "react-bootstrap";
 
-const Recipe = () => {
+const Recipes = () => {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     axios.get(`https://flavournest.onrender.com/recipes/${id}`)
-      .then((res) => setRecipe(res.data))
-      .catch(() => setRecipe(null));
+      .then((response) => {
+        setRecipe(response.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching recipe:", error);
+        setError("Failed to load recipe");
+        setLoading(false);
+      });
   }, [id]);
 
-  if (!recipe) {
-    return <h2 className="text-center">Recipe Not Found!</h2>;
-  }
+  if (loading) return <p className="text-center">Loading...</p>;
+  if (error) return <p className="text-center text-danger">{error}</p>;
 
   return (
-    <div className="container my-5">
-      <h2 className="text-center">{recipe.title}</h2>
-      <img src={recipe.imageUrl || "https://flavournest.onrender.com/uploads/default.jpg"} className="img-fluid rounded mx-auto d-block my-3" alt={recipe.title} />
-      <p className="text-muted text-center">{recipe.description}</p>
-
-      <h4>Ingredients:</h4>
-      <ul>
-        {recipe.ingredients.map((ingredient, index) => (
-          <li key={index}>{ingredient}</li>
-        ))}
-      </ul>
-
-      <h4>Steps:</h4>
-      <ol>
-        {recipe.instructions.map((step, index) => (
-          <li key={index}>{step}</li>
-        ))}
-      </ol>
-
-      <p><strong>Estimated Time:</strong> {recipe.cookingTime} minutes</p>
-    </div>
+    <Container className="mt-4">
+      {recipe && (
+        <Card className="shadow-lg p-4">
+          <Card.Img 
+            variant="top" 
+            src={recipe.imageUrl} 
+            alt={recipe.title} 
+            className="img-fluid rounded" 
+            onError={(e) => { e.target.src = "default-image.jpg"; }} // Fallback image
+          />
+          <Card.Body>
+            <Card.Title>{recipe.title}</Card.Title>
+            <Card.Text>{recipe.description || "No description available."}</Card.Text>
+            <p><strong>Cooking Time:</strong> {recipe.cookingTime || "N/A"} minutes</p>
+            
+            <h5>Ingredients:</h5>
+            <ListGroup>
+              {recipe.ingredients && recipe.ingredients.length > 0 ? (
+                recipe.ingredients.map((item, index) => <ListGroup.Item key={index}>{item}</ListGroup.Item>)
+              ) : (
+                <ListGroup.Item>No ingredients available</ListGroup.Item>
+              )}
+            </ListGroup>
+            
+            <h5 className="mt-3">Instructions:</h5>
+            <ol>
+              {recipe.instructions && recipe.instructions.length > 0 ? (
+                recipe.instructions.map((step, index) => <li key={index}>{step}</li>)
+              ) : (
+                <li>No instructions available</li>
+              )}
+            </ol>
+          </Card.Body>
+        </Card>
+      )}
+    </Container>
   );
 };
 
-export default Recipe;
-
-
-
+export default Recipes;

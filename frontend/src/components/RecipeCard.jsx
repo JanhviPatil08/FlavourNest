@@ -8,17 +8,15 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
   const [favorited, setFavorited] = useState(isFavorite);
   const [show, setShow] = useState(false);
 
-  // 🔹 FIXED: Ensure correct image URL is used
-  const imageUrl = recipe.imageUrl?.startsWith("http") 
-  ? recipe.imageUrl 
-  : `https://flavournest.onrender.com/uploads/${recipe.imageUrl}`;
-
-
+  // ✅ FIXED: Ensure correct image URL from user input
+  const imageUrl = recipe.imageUrl?.startsWith("http")
+    ? recipe.imageUrl
+    : "/images/default-recipe.jpg"; // Fallback image
 
   const handleFavorite = () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Please log in to save recipes!");
+      toast.error("❌ Please log in to save recipes!");
       return;
     }
 
@@ -33,18 +31,23 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(() => {
-        toast.success(favorited ? "Removed from favorites" : "Added to favorites");
+        toast.success(favorited ? "❌ Removed from favorites" : "❤️ Added to favorites");
         setFavorited(!favorited);
         refreshFavorites();
       })
-      .catch(() => toast.error("Something went wrong!"));
+      .catch(() => toast.error("⚠️ Something went wrong!"));
   };
 
   return (
     <>
-      {/* 🔹 FIXED: Ensures image loads properly */}
       <Card className="recipe-card">
-        <Card.Img variant="top" src={imageUrl} alt={recipe.title} />
+        {/* ✅ Image now correctly loads from URL */}
+        <Card.Img
+          variant="top"
+          src={imageUrl}
+          alt={recipe.title}
+          onError={(e) => { e.target.src = "/images/default-recipe.jpg"; }} // Fallback image if URL fails
+        />
         <Card.Body>
           <Card.Title>{recipe.title}</Card.Title>
           <Card.Text>{recipe.description || "No description available"}</Card.Text>
@@ -55,25 +58,30 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
         </Card.Body>
       </Card>
 
-      {/* 🔹 FIXED: Modal correctly displays all details */}
+      {/* ✅ FIXED: Modal displays all details properly */}
       <Modal show={show} onHide={() => setShow(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>{recipe.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <img src={imageUrl} alt={recipe.title} className="img-fluid rounded mb-3" />
+          <img
+            src={imageUrl}
+            alt={recipe.title}
+            className="img-fluid rounded mb-3"
+            onError={(e) => { e.target.src = "/images/default-recipe.jpg"; }} // Fallback
+          />
           <p><strong>Cooking Time:</strong> {recipe.cookingTime ? `${recipe.cookingTime} minutes` : "N/A"}</p>
           
           <h5>Ingredients:</h5>
           <ul>
-            {Array.isArray(recipe.ingredients)
+            {Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0
               ? recipe.ingredients.map((item, index) => <li key={index}>{item}</li>)
               : <li>No ingredients available</li>}
           </ul>
 
           <h5>Instructions:</h5>
           <ol>
-            {Array.isArray(recipe.instructions)
+            {Array.isArray(recipe.instructions) && recipe.instructions.length > 0
               ? recipe.instructions.map((step, index) => <li key={index}>{step}</li>)
               : <li>No instructions available</li>}
           </ol>

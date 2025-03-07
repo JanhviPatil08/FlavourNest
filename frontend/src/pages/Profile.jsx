@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"; 
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,7 @@ const Profile = () => {
       const token = localStorage.getItem("token");
 
       if (!token) {
+        toast.error("You must be logged in to view your profile.");
         navigate("/login");
         return;
       }
@@ -26,6 +27,7 @@ const Profile = () => {
         setUser(response.data);
       } catch (error) {
         console.error("❌ Error fetching user:", error.response?.data?.message || error.message);
+        toast.error("Session expired. Please log in again.");
         navigate("/login");
       }
     };
@@ -39,7 +41,7 @@ const Profile = () => {
         });
         setFavorites(response.data);
       } catch (error) {
-        toast.error("Failed to load favorites");
+        toast.error("Failed to load favorite recipes.");
       } finally {
         setLoading(false);
       }
@@ -51,8 +53,7 @@ const Profile = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    toast.success("Logged out successfully");
-    setUser(null);
+    toast.success("Logged out successfully!");
     navigate("/login");
   };
 
@@ -80,9 +81,16 @@ const Profile = () => {
           favorites.map((recipe) => (
             <Col md={4} key={recipe._id} className="mb-4">
               <Card className="shadow-sm border-0">
+                {/* ✅ Display Recipe Image Correctly */}
+                <Card.Img
+                  variant="top"
+                  src={recipe.imageUrl || "/images/default-image.jpg"}
+                  alt={recipe.title}
+                  onError={(e) => (e.target.src = "/images/default-image.jpg")}
+                />
                 <Card.Body>
                   <Card.Title>{recipe.title}</Card.Title>
-                  <Card.Text>{recipe.description}</Card.Text>
+                  <Card.Text>{recipe.description || "No description available"}</Card.Text>
                 </Card.Body>
               </Card>
             </Col>
@@ -94,4 +102,3 @@ const Profile = () => {
 };
 
 export default Profile;
-

@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Recipe from "../models/Recipe.js";
 
 // ✅ Save (Like) or Remove Recipe
 export const saveRecipe = async (req, res) => {
@@ -27,52 +28,22 @@ export const saveRecipe = async (req, res) => {
   }
 };
 
-// ✅ Get User's Saved Recipes
-export const getSavedRecipes = async (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Unauthorized: No user found" });
-  }
-
-  try {
-    const user = await User.findById(req.user.id).populate({
-      path: "savedRecipes",
-      select: "title description", // ✅ Select only needed fields
-    });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.json(user.savedRecipes);
-  } catch (error) {
-    res.status(500).json({ message: "Server error: " + error.message });
-  }
-};
-
-// ✅ Get User Profile
-export const getUserProfile = async (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Unauthorized: No user found" });
-  }
-
-  try {
-    const user = await User.findById(req.user.id).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: "Server error: " + error.message });
-  }
-};
-
-// ✅ Get User's Favorite Recipes (Fix for your error)
+// ✅ Get User's Favorite Recipes
 export const getFavorites = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate("savedRecipes");
-    res.json(user.savedRecipes);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user.savedRecipes.map(recipe => ({
+      _id: recipe._id,
+      title: recipe.title,
+      description: recipe.description,
+      cookingTime: recipe.cookingTime,
+      imageUrl: recipe.imageUrl, // ✅ Ensure image URL is included
+      ingredients: recipe.ingredients,
+      instructions: recipe.instructions
+    })));
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Server error: " + error.message });
   }
 };

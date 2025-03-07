@@ -5,12 +5,12 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-const uploadDir = "public/uploads/";
+const uploadDir = "uploads/"; // 🔹 FIXED: Removed "public/" (Render doesn't serve from "public/uploads/")
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true }); // ✅ Ensure all parent folders exist
+  fs.mkdirSync(uploadDir, { recursive: true }); // ✅ Ensure folder exists
 }
 
-// ✅ Multer Storage Configuration
+// ✅ Multer Storage Configuration (Fix Image Saving)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadDir);
@@ -36,6 +36,30 @@ const router = express.Router();
 router.get("/", getRecipes);
 
 // ✅ Create Recipe (Requires Authentication & Image Upload)
-router.post("/", authMiddleware, upload.single("image"), createRecipe);
+router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
+  try {
+    const { title, description, ingredients, instructions, cookingTime } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Image is required!" });
+    }
+
+    // 🔹 FIXED: Save only the filename, not the full path
+    const imageUrl = req.file.filename;
+
+    const newRecipe = await createRecipe({
+      title,
+      description,
+      ingredients: JSON.parse(ingredients),
+      instructions: JSON.parse(instructions),
+      cookingTime,
+      imageUrl, // ✅ Save only filename
+    });
+
+    res.status(201).json({ message: "Recipe added successfully!", recipe: newRecipe });
+  } catch (error) {
+    res.status(500).json({ message: "Error adding recipe", error: error.message });
+  }
+});
 
 export default router;

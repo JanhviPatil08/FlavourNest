@@ -45,7 +45,7 @@ function RecipeList() {
                   <h5 className="card-title">{recipe.title}</h5>
                   <p className="card-text">{recipe.description || "No description available"}</p>
                   <p><strong>Time:</strong> {recipe.cookingTime ? `${recipe.cookingTime} minutes` : "N/A"}</p>
-                  <Link to={`/recipe/${recipe._id}`} className="btn btn-success">
+                  <Link to={`/recipes/${recipe._id}`} className="btn btn-success">
                     View Recipe
                   </Link>
                 </div>

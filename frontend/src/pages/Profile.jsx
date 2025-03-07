@@ -21,12 +21,20 @@ const Profile = () => {
   
       try {
         const userResponse = await axios.get("https://flavournest.onrender.com/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
+          
         });
         setUser(userResponse.data);
   
         const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
+          
         });
         setFavorites(favoritesResponse.data);
       } catch (error) {

@@ -10,4 +10,17 @@ router.get("/", getRecipes);
 // ✅ Create Recipe (Requires Authentication)
 router.post("/", authMiddleware, createRecipe);
 
+router.get("/:id", async (req, res) => {
+    try {
+      const recipe = await RecipeModel.findById(req.params.id);
+      if (!recipe) {
+        return res.status(404).json({ message: "Recipe not found" });
+      }
+      res.json(recipe);
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+  
+
 export default router;

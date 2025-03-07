@@ -18,36 +18,33 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    setError("");
+  
     try {
       const url = isRegister
         ? "https://flavournest.onrender.com/auth/register"
         : "https://flavournest.onrender.com/auth/login";
-
+  
       const response = await axios.post(url, formData, { withCredentials: true });
-
+  
       if (response.status === 200 || response.status === 201) {
-        if (isRegister) {
-          toast.success("🎉 Registration successful! Please login.");
-          setIsRegister(false); // Switch to login after successful registration
-        } else {
-          toast.success("✅ Login successful!");
-          localStorage.setItem("token", response.data.token); // Store token
-          setTimeout(() => navigate("/profile"), 1500); // Redirect after 1.5s
+        toast.success(isRegister ? "🎉 Registration successful! Please login." : "✅ Login successful!");
+        
+        if (!isRegister) {
+          localStorage.setItem("token", response.data.token);  // ✅ Store token
+          axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`; // ✅ Attach token globally
+          navigate("/profile");  // ✅ Redirect after login
         }
       } else {
         throw new Error("Unexpected response from server.");
       }
     } catch (err) {
-      if (err.response?.status === 400 && err.response?.data?.message === "User already exists") {
-        toast.error("⚠️ This email is already registered. Try logging in.");
-      } else {
-        toast.error(err.response?.data?.message || "❌ Something went wrong! Please try again.");
-      }
+      toast.error(err.response?.data?.message || "Something went wrong! Please try again.");
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>

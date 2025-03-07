@@ -11,44 +11,37 @@ const Profile = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndFavorites = async () => {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        toast.error("You must be logged in to view your profile.");
+        toast.error("User not logged in. Please log in first.");
         navigate("/login");
         return;
       }
 
       try {
-        const response = await axios.get("https://flavournest.onrender.com/users/me", {
+        // ✅ Fetch user profile
+        const userResponse = await axios.get("https://flavournest.onrender.com/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUser(response.data);
+        setUser(userResponse.data);
+
+        // ✅ Fetch favorite recipes
+        const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFavorites(favoritesResponse.data);
       } catch (error) {
-        console.error("❌ Error fetching user:", error.response?.data?.message || error.message);
         toast.error("Session expired. Please log in again.");
+        localStorage.removeItem("token");
         navigate("/login");
-      }
-    };
-
-    const fetchFavorites = async () => {
-      const token = localStorage.getItem("token");
-
-      try {
-        const response = await axios.get("https://flavournest.onrender.com/users/favorites", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setFavorites(response.data);
-      } catch (error) {
-        toast.error("Failed to load favorite recipes.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
-    fetchFavorites();
+    fetchUserAndFavorites();
   }, [navigate]);
 
   const handleLogout = () => {
@@ -81,7 +74,6 @@ const Profile = () => {
           favorites.map((recipe) => (
             <Col md={4} key={recipe._id} className="mb-4">
               <Card className="shadow-sm border-0">
-                {/* ✅ Display Recipe Image Correctly */}
                 <Card.Img
                   variant="top"
                   src={recipe.imageUrl || "/images/default-image.jpg"}

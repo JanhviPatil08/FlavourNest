@@ -9,7 +9,10 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
   const [show, setShow] = useState(false);
 
   // 🔹 FIXED: Ensure correct image URL is used
-  const imageUrl = recipe.imageUrl || "https://flavournest.onrender.com/uploads/default.jpg";
+  const imageUrl = recipe.imageUrl 
+  ? `https://flavournest.onrender.com/uploads/${recipe.imageUrl}` 
+  : "https://flavournest.onrender.com/uploads/default.jpg";
+
 
   const handleFavorite = () => {
     const token = localStorage.getItem("token");

@@ -1,20 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import axios from "axios"; // Import Axios for API calls
+import recipesData from "../data/RecipeData"; // Import hardcoded recipes
 import { Container, Row, Col, Card, Button, ListGroup, Modal } from "react-bootstrap";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const Home = () => {
-  const [recipes, setRecipes] = useState([]);
+  const [recipes, setRecipes] = useState([...recipesData]); // Start with hardcoded recipes
   const [favorites, setFavorites] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(false); // Modal state
 
+  // Fetch backend recipes and combine with hardcoded recipes
   useEffect(() => {
     axios.get("https://flavournest.onrender.com/recipes")
-      .then((response) => setRecipes(response.data))
-      .catch((error) => console.error("Error fetching recipes:", error));
+      .then((response) => {
+        const combinedRecipes = [...recipesData, ...response.data]; // Merge old + new
+        setRecipes(combinedRecipes);
+      })
+      .catch((error) => {
+        console.error("❌ Error fetching recipes:", error);
+        setRecipes(recipesData); // Show old recipes if backend fails
+      });
   }, []);
+  
 
   const toggleFavorite = (id) => {
     setFavorites((prev) =>
@@ -39,11 +48,17 @@ const Home = () => {
               transition={{ type: "spring", stiffness: 300 }}
             >
               <Card className="shadow-sm recipe-card">
-                <Card.Img variant="top" src={recipe.imageUrl || "https://flavournest.onrender.com/uploads/default.jpg"} alt={recipe.title} />
+                <Card.Img 
+                   variant="top" 
+                   src={`https://flavournest.onrender.com/uploads/${recipe.imageUrl}`} 
+                  alt={recipe.title} 
+                   onError={(e) => { e.target.src = "https://flavournest.onrender.com/uploads/default.jpg"; }} 
+/>
+
                 <Card.Body>
                   <Card.Title>{recipe.title}</Card.Title>
                   <Card.Text>{recipe.description}</Card.Text>
-
+                  
                   <Button variant="success" onClick={() => handleViewRecipe(recipe)}>
                     View Recipe
                   </Button>
@@ -67,19 +82,17 @@ const Home = () => {
           <Modal.Title>{selectedRecipe?.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <img src={selectedRecipe?.imageUrl || "https://flavournest.onrender.com/uploads/default.jpg"} alt={selectedRecipe?.title} className="img-fluid rounded mb-3" />
-          <p><strong>Estimated Time:</strong> {selectedRecipe?.cookingTime} minutes</p>
-          
+          <img src={selectedRecipe?.image} alt={selectedRecipe?.title} className="img-fluid rounded mb-3" />
+          <p><strong>Estimated Time:</strong> {selectedRecipe?.time} minutes</p>
           <h5>Ingredients:</h5>
           <ListGroup>
             {selectedRecipe?.ingredients?.map((item, index) => (
               <ListGroup.Item key={index}>{item}</ListGroup.Item>
             ))}
           </ListGroup>
-
           <h5 className="mt-3">Steps to Make:</h5>
           <ol>
-            {selectedRecipe?.instructions?.map((step, index) => (
+            {selectedRecipe?.steps?.map((step, index) => (
               <li key={index}>{step}</li>
             ))}
           </ol>
@@ -93,3 +106,4 @@ const Home = () => {
 };
 
 export default Home;
+

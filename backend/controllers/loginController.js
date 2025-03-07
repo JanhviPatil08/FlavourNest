@@ -2,7 +2,6 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// ✅ Function to generate JWT token
 const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
 // ✅ Register User
@@ -22,22 +21,13 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashedPassword });
 
-    const token = generateToken(user._id);
-    user.token = token;
-    await user.save(); // ✅ Store the latest token in the database
-
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token,
-    });
+    res.status(201).json({ message: "✅ Registration successful! Please login." });
   } catch (error) {
     res.status(500).json({ message: "❌ Registration failed" });
   }
 };
 
-// ✅ Login User
+// ✅ Login User (Store Token in DB)
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -48,30 +38,17 @@ export const loginUser = async (req, res) => {
     }
 
     const token = generateToken(user._id);
-    user.token = token; // ✅ Store the latest token in the database
+    user.token = token; // ✅ Store token in database
     await user.save();
 
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
-      token,
+      token: user.token, // ✅ Send token in response
     });
   } catch (error) {
     res.status(500).json({ message: "❌ Login failed" });
-  }
-};
-
-// ✅ Get User Profile
-export const getUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "❌ User not found" });
-    }
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: "❌ Error fetching user profile" });
   }
 };
 
@@ -79,13 +56,14 @@ export const getUserProfile = async (req, res) => {
 export const logoutUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    if (user) {
-      user.token = null; // ✅ Remove token from the database
-      await user.save();
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.token = null; // ✅ Clear token from DB
+    await user.save();
     res.json({ message: "✅ Logout successful" });
   } catch (error) {
     res.status(500).json({ message: "❌ Logout failed" });
   }
 };
+
 

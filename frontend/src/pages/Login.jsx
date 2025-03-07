@@ -3,7 +3,7 @@ import { Container, Card, Form, Button, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; 
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,19 +24,16 @@ const Login = () => {
         ? "https://flavournest.onrender.com/auth/register"
         : "https://flavournest.onrender.com/auth/login";
 
-      const response = await axios.post(url, formData, { withCredentials: true });
+      const response = await axios.post(url, formData);
 
       if (response.status === 200 || response.status === 201) {
         toast.success(isRegister ? "🎉 Registration successful! Please login." : "✅ Login successful!");
-        console.log("Token received:", response.data.token);
-        localStorage.setItem("token", JSON.stringify(response.data.token));
- // Store token only on login
 
-        if (!isRegister) {
-          navigate("/profile"); // Redirect after login
-        } else {
-          setIsRegister(false); // Switch to login form after registration
-        }
+        // ✅ No need to store token in localStorage, use it from backend
+        axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
+
+        // ✅ Redirect after successful login
+        setTimeout(() => navigate("/profile"), 1000);
       } else {
         throw new Error("Unexpected response from server.");
       }
@@ -54,7 +51,7 @@ const Login = () => {
           <h2 className="text-center text-success fw-bold">
             {isRegister ? "Join FlavourNest" : "Welcome Back"}
           </h2>
-          
+
           <Form onSubmit={handleSubmit}>
             {isRegister && (
               <Form.Group className="mb-3">

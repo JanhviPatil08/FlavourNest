@@ -2,13 +2,12 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { Container, Row, Col, Card, Button, Spinner } from "react-bootstrap";
+import { Container, Button, Spinner } from "react-bootstrap";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -30,11 +29,13 @@ const Profile = () => {
         toast.error("Session expired. Please log in again.");
         localStorage.removeItem("token");
         navigate("/login");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUser();
-  }, [navigate]); // ✅ Removed duplicate function calls
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

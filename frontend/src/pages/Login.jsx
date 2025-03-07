@@ -35,7 +35,7 @@ const Login = () => {
           throw new Error("No token received. Login failed.");
         }
   
-        localStorage.setItem("token", token);  // ✅ Ensure token is stored
+        localStorage.setItem("token", response.data.token);  // ✅ Ensure token is stored
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`; // ✅ Set default header
   
         toast.success(isRegister ? "🎉 Registration successful! Please login." : "✅ Login successful!");

@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+// ✅ Function to generate JWT token
 const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
 // ✅ Register User
@@ -21,18 +22,17 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashedPassword });
 
-    const token = generateToken(user._id); // ✅ Generate Token
-    console.log("Generated Token (Register):", token); // ✅ Debugging
+    const token = generateToken(user._id);
+    user.token = token;
+    await user.save(); // ✅ Store the latest token in the database
 
     res.status(201).json({
-      message: "🎉 Registration successful! Please login.",
       _id: user._id,
       name: user.name,
       email: user.email,
-      token, // ✅ Send token
+      token,
     });
   } catch (error) {
-    console.error("Registration Error:", error);
     res.status(500).json({ message: "❌ Registration failed" });
   }
 };
@@ -47,18 +47,17 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "❌ Invalid email or password" });
     }
 
-    const token = generateToken(user._id); // ✅ Generate Token
-    console.log("Generated Token (Login):", token); // ✅ Debugging
+    const token = generateToken(user._id);
+    user.token = token; // ✅ Store the latest token in the database
+    await user.save();
 
-    res.status(200).json({
-      message: "✅ Login successful!",
+    res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
-      token, // ✅ Send token
+      token,
     });
   } catch (error) {
-    console.error("Login Error:", error);
     res.status(500).json({ message: "❌ Login failed" });
   }
 };
@@ -72,12 +71,21 @@ export const getUserProfile = async (req, res) => {
     }
     res.json(user);
   } catch (error) {
-    console.error("Profile Error:", error);
-    res.status(500).json({ message: "❌ Error fetching profile" });
+    res.status(500).json({ message: "❌ Error fetching user profile" });
   }
 };
 
-// ✅ Logout User (Handled on Frontend)
+// ✅ Logout User (Clear Token from DB)
 export const logoutUser = async (req, res) => {
-  res.status(200).json({ message: "✅ Logout successful" });
+  try {
+    const user = await User.findById(req.user.id);
+    if (user) {
+      user.token = null; // ✅ Remove token from the database
+      await user.save();
+    }
+    res.json({ message: "✅ Logout successful" });
+  } catch (error) {
+    res.status(500).json({ message: "❌ Logout failed" });
+  }
 };
+

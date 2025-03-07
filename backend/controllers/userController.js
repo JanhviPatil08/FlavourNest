@@ -47,9 +47,11 @@ export const getFavorites = async (req, res) => {
     res.status(500).json({ message: "Server error: " + error.message });
   }
 };
+
+// ✅ FIXED: Get User Profile
 export const getUserProfile = async (req, res) => {
   try {
-    const user = await UserModel.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id).select("-password"); // ✅ Changed `UserModel` to `User`
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { Container, Card, Form, Button, Spinner } from "react-bootstrap";
+import { Container, Card, Form, Button, Alert, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 
 const Login = () => {
   const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState("");  // ✅ FIXED: Defined `setError`
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -18,43 +19,47 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-  
+    setError(""); // ✅ Reset error before submitting
+
     try {
       const url = isRegister
         ? "https://flavournest.onrender.com/auth/register"
         : "https://flavournest.onrender.com/auth/login";
-  
+
       const response = await axios.post(url, formData, { withCredentials: true });
-  
+
       if (response.status === 200 || response.status === 201) {
-        toast.success(isRegister ? "🎉 Registration successful! Please login." : "✅ Login successful!");
-        
-        if (!isRegister) {
-          localStorage.setItem("token", response.data.token);  // ✅ Store token
-          axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`; // ✅ Attach token globally
-          navigate("/profile");  // ✅ Redirect after login
+        if (isRegister) {
+          toast.success("🎉 Registration successful! Please login.");
+          setIsRegister(false); // Switch to login after successful registration
+        } else {
+          toast.success("✅ Login successful!");
+          localStorage.setItem("token", response.data.token); // Store token
+          navigate("/profile"); // Redirect after login
         }
       } else {
         throw new Error("Unexpected response from server.");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong! Please try again.");
+      if (err.response?.status === 400 && err.response?.data?.message === "User already exists") {
+        toast.error("⚠️ This email is already registered. Try logging in.");
+      } else {
+        setError(err.response?.data?.message || "Something went wrong! Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-      <ToastContainer /> {/* ✅ Toast container for notifications */}
       <Card className="p-4 shadow-lg rounded-4" style={{ width: "100%", maxWidth: "400px" }}>
         <Card.Body>
           <h2 className="text-center text-success fw-bold">
             {isRegister ? "Join FlavourNest" : "Welcome Back"}
           </h2>
-
+          {error && <Alert variant="danger">{error}</Alert>}
+          
           <Form onSubmit={handleSubmit}>
             {isRegister && (
               <Form.Group className="mb-3">
@@ -91,4 +96,3 @@ const Login = () => {
 };
 
 export default Login;
-

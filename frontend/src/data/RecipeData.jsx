@@ -3,7 +3,7 @@ const recipes = [
     id: 1,
     title: "Chicken Biryani",
     description: "Aromatic and flavorful rice dish with spices and chicken.",
-    image: "/images/biryani.jpg", 
+    image: "https://source.unsplash.com/400x300/?food", 
     time: "90",
     ingredients: [
       "2 cups Basmati Rice",
@@ -24,7 +24,7 @@ const recipes = [
     id: 2,
     title: "Pizza",
     description: "Cheesy and delicious homemade pizza with a crispy crust.",
-    image: "/images/pizza.jpg",  
+    image: "https://img.freepik.com/free-photo/pizza-pizza-filled-with-tomatoes-salami-olives_140725-1200.jpg",  
     time: "45 ",
     ingredients: [
       "2 cups Flour",
@@ -45,7 +45,7 @@ const recipes = [
     id: 3,
     title: "Gajar Halwa",
     description: "Traditional Indian sweet made with carrots, milk, and dry fruits.",
-    image: "/images/gajarhalwa.jpg",  
+    image: "https://media.istockphoto.com/id/1208754471/photo/gajar-ka-halwa.jpg?s=612x612&w=0&k=20&c=lfYKARLXHS2CbHtuU25uDnQQ1YMg83T_qS_eFB8wNRg=",  
     time: "40 ",
     ingredients: [
       "4 cups Grated Carrots",
@@ -65,7 +65,7 @@ const recipes = [
     id: 4,
     title: "Rasmalai",
     description: "Soft and spongy paneer balls soaked in sweet saffron milk.",
-    image: "/images/rasmalai.jpg",  
+    image: "https://w0.peakpx.com/wallpaper/25/671/HD-wallpaper-ras-malai-delicious-food-graphy-sweet.jpg",  
     time: "50 ",
     ingredients: [
       "2 liters Milk",
@@ -88,14 +88,14 @@ const recipes = [
     id: 5,
     title: "Pasta",
     description: "Creamy and delicious homemade pasta with a rich sauce.",
-    image: "/images/pasta.jpg", 
+    image: "https://png.pngtree.com/thumb_back/fh260/background/20241124/pngtree-appetizing-penne-pasta-with-a-generous-meaty-bolognese-sauce-image_16628043.jpg", 
     time: "30",
     ingredients: [
       "2 cups Pasta",
       "2 tbsp Olive Oil",
       "1 Onion (chopped)",
       "2 cloves Garlic (minced)",
-      "1 cup Tomato Puree",
+      "1 cup Tomato Puree", 
       "1/2 cup Heavy Cream",
       "1 tsp Italian Herbs",
       "Salt and Pepper to taste",

@@ -44,17 +44,12 @@ const Home = () => {
               <Card className="shadow-sm recipe-card">
                 {/* ✅ FIXED IMAGE HANDLING FOR FRONTEND & BACKEND */}
                 <Card.Img 
-                  variant="top" 
-                  src={
-                    recipe.imageUrl?.startsWith("http") 
-                      ? recipe.imageUrl  // Load backend image (full URL)
-                      : recipe.image 
-                        ? `/images/${recipe.image}`  // Load frontend image from `public/images/`
-                        : `http://localhost:5000/uploads/${recipe.imageUrl || recipe.image}` // Backend image
-                  } 
-                  alt={recipe.title} 
-                  onError={(e) => { e.target.src = "/images/default-image.jpg"; }} // Show default image if missing
+                variant="top" 
+                 src={recipe.imageUrl}  // ✅ Use the correct property
+                 alt={recipe.title} 
+                onError={(e) => { e.target.src = "/default-image.jpg"; }} // Fallback if image fails
                 />
+
                 <Card.Body>
                   <Card.Title>{recipe.title}</Card.Title>
                   <Card.Text>{recipe.description}</Card.Text>

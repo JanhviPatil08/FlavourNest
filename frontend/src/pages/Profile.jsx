@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";  
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +11,7 @@ const Profile = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const fetchUserAndFavorites = async () => {
+    const fetchUser = async () => {
       const token = localStorage.getItem("token");
 
       if (!token) {
@@ -21,28 +21,20 @@ const Profile = () => {
       }
 
       try {
-        // ✅ Fetch user profile
-        const userResponse = await axios.get("https://flavournest.onrender.com/users/me", {
+        const response = await axios.get("https://flavournest.onrender.com/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUser(userResponse.data);
 
-        // ✅ Fetch favorite recipes
-        const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setFavorites(favoritesResponse.data);
+        setUser(response.data);
       } catch (error) {
         toast.error("Session expired. Please log in again.");
         localStorage.removeItem("token");
         navigate("/login");
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchUserAndFavorites();
-  }, [navigate]);
+    fetchUser();
+  }, [navigate]); // ✅ Removed duplicate function calls
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -65,30 +57,6 @@ const Profile = () => {
       ) : (
         <Button variant="success" onClick={() => navigate("/login")}>Login</Button>
       )}
-
-      <h3 className="mt-4">Favorite Recipes ❤️</h3>
-      <Row className="mt-3">
-        {favorites.length === 0 ? (
-          <p className="text-muted">You haven't saved any favorite recipes yet.</p>
-        ) : (
-          favorites.map((recipe) => (
-            <Col md={4} key={recipe._id} className="mb-4">
-              <Card className="shadow-sm border-0">
-                <Card.Img
-                  variant="top"
-                  src={recipe.imageUrl || "/images/default-image.jpg"}
-                  alt={recipe.title}
-                  onError={(e) => (e.target.src = "/images/default-image.jpg")}
-                />
-                <Card.Body>
-                  <Card.Title>{recipe.title}</Card.Title>
-                  <Card.Text>{recipe.description || "No description available"}</Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))
-        )}
-      </Row>
     </Container>
   );
 };

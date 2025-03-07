@@ -37,15 +37,17 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "❌ Invalid email or password" });
     }
 
-    const token = generateToken(user._id);
-    user.token = token; // ✅ Store token in database
-    await user.save();
+    let token = user.token;
+    if (!token) {
+      token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);  // 🔥 No expiry
+      user.token = token;
+      await user.save();
 
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
-      token: user.token, // ✅ Send token in response
+      token, // ✅ Send token in response
     });
   } catch (error) {
     res.status(500).json({ message: "❌ Login failed" });

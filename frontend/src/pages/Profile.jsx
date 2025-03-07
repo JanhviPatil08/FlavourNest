@@ -13,44 +13,34 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserAndFavorites = async () => {
       const token = localStorage.getItem("token");
-
-      // ✅ Fix: Check if token exists before making API requests
+  
       if (!token) {
         toast.error("User not logged in. Please log in first.");
-        navigate("/login");
-        return;
+        return navigate("/login");
       }
-
+  
       try {
-        // ✅ Fetch user profile
         const userResponse = await axios.get("https://flavournest.onrender.com/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        if (userResponse.status === 200) {
-          setUser(userResponse.data);
-        } else {
-          throw new Error("Failed to fetch user.");
-        }
-
-        // ✅ Fetch favorite recipes
+        setUser(userResponse.data);
+  
         const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         setFavorites(favoritesResponse.data);
       } catch (error) {
-        console.error("Error fetching user data:", error);
         toast.error("Session expired. Please log in again.");
-        localStorage.removeItem("token");
+        localStorage.removeItem("token");  // ✅ Remove token **only** if there's an error!
         navigate("/login");
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchUserAndFavorites();
   }, [navigate]);
+  
 
   const handleLogout = () => {
     localStorage.removeItem("token");

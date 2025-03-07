@@ -12,16 +12,21 @@ const Recipe = () => {
     const fetchRecipe = async () => {
       try {
         const response = await axios.get(`https://flavournest.onrender.com/recipes/${id}`);
-        setRecipe(response.data);
+        if (response.data) {
+          setRecipe(response.data);
+        } else {
+          toast.error("Recipe not found!");
+          navigate("/recipes");
+        }
       } catch (error) {
-        console.error("Error fetching recipe:", error);
-      } finally {
-        setLoading(false);
+        toast.error("Error fetching recipe. Please try again!");
+        navigate("/recipes");
       }
     };
-
+  
     fetchRecipe();
-  }, [id]);
+  }, [id, navigate]);
+  
 
   if (loading) return <Spinner animation="border" className="d-block mx-auto mt-5" />;
   if (!recipe) return <h2 className="text-center text-danger">❌ Recipe Not Found!</h2>;

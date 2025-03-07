@@ -55,7 +55,7 @@ const RecipeForm = () => {
 
     formDataToSend.append("ingredients", JSON.stringify(ingredientsArray));
     formDataToSend.append("instructions", JSON.stringify(instructionsArray));
-    formDataToSend.append("imageUrl", formData.imageUrl);
+    formDataToSend.append("imageUrl", formData.image);
 
     try {
       await axios.post("https://flavournest.onrender.com/recipes", formDataToSend, {

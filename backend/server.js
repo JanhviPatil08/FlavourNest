@@ -4,35 +4,35 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
+
 import authRoutes from "./routes/loginRoutes.js";
 import recipeRoutes from "./routes/recipeRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config(); // ✅ Load environment variables
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ✅ Ensure `uploads/` directory exists
-const uploadDir = path.join(path.resolve(), "uploads");
+const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// ✅ Fix CORS Issue - Allow frontend requests
-app.use(
-  cors({
-    origin: "https://flavournest-1.onrender.com", // Allow frontend domain
-    credentials: true, // Allow authentication headers
-  })
-);
+// ✅ Fix CORS Issue - Allow frontend requests (TEMPORARILY ALLOW ALL FOR DEBUGGING)
+app.use(cors()); // 🔹 Use this for testing, later change it back to specific domains
 
 // ✅ Middleware
 app.use(express.json()); // Parse JSON requests
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded requests
 
-// ✅ Serve uploaded images
-app.use("/uploads", express.static(uploadDir));
+// ✅ Serve uploaded images correctly
+app.use("/uploads", express.static(uploadDir)); // 🔹 FIXED STATIC FILE PATH
 
 // ✅ Test Route to Check If Backend Is Running
 app.get("/", (req, res) => {

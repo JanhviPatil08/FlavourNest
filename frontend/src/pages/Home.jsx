@@ -48,12 +48,17 @@ const Home = () => {
               transition={{ type: "spring", stiffness: 300 }}
             >
               <Card className="shadow-sm recipe-card">
-                <Card.Img 
-                   variant="top" 
-                   src={`https://flavournest.onrender.com/uploads/${recipe.imageUrl}`} 
-                  alt={recipe.title} 
-                   onError={(e) => { e.target.src = "https://flavournest.onrender.com/uploads/default.jpg"; }} 
+              <Card.Img 
+  variant="top" 
+  src={
+    recipe.imageUrl?.startsWith("http") 
+      ? recipe.imageUrl  // 🔹 If it's a full URL, use it directly
+      : `https://flavournest.onrender.com/uploads/${recipe.imageUrl}` // 🔹 If it's a filename, prepend the backend URL
+  } 
+  alt={recipe.title} 
+  onError={(e) => { e.target.src = "/default-image.jpg"; }} // 🔹 Show default image if loading fails
 />
+
 
                 <Card.Body>
                   <Card.Title>{recipe.title}</Card.Title>

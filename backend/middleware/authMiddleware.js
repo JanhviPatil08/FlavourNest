@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import UserModel from "../models/User.js"; // Ensure correct path
 
-export const protect = async (req, res, next) => {
+ const authMiddleware = async (req, res, next) => {
   let token = req.headers.authorization;
 
   if (token && token.startsWith("Bearer")) {
@@ -19,5 +19,5 @@ export const protect = async (req, res, next) => {
   }
 };
 
-
+export default authMiddleware;
 

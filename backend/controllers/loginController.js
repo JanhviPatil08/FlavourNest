@@ -28,7 +28,7 @@ const registerUser = async (req, res) => {
 };
 
 // ✅ Login User (Store Token in DB)
- const loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -37,20 +37,23 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "❌ Invalid email or password" });
     }
 
+    // ✅ Generate token and store in database
     let token = user.token;
     if (!token) {
-      token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);  // 🔥 No expiry
+      token = generateToken(user._id);
       user.token = token;
       await user.save();
+    }
 
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
-      token, // ✅ Send token in response
+      token,
     });
+
   } catch (error) {
-    res.status(500).json({ message: "❌ Login failed" });
+    res.status(500).json({ message: "❌ Login failed", error: error.message });
   }
 };
 

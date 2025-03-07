@@ -28,7 +28,7 @@ const Login = () => {
 
       if (response.status === 200 || response.status === 201) {
         toast.success(isRegister ? "🎉 Registration successful! Please login." : "✅ Login successful!");
-
+        console.log("Token received:", response.data.token);
         localStorage.setItem("token", response.data.token); // Store token only on login
 
         if (!isRegister) {

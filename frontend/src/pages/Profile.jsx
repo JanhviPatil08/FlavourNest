@@ -14,6 +14,7 @@ const Profile = () => {
     const fetchUserAndFavorites = async () => {
       const token = localStorage.getItem("token");
 
+      // ✅ Fix: Check if token exists before making API requests
       if (!token) {
         toast.error("User not logged in. Please log in first.");
         navigate("/login");
@@ -39,6 +40,7 @@ const Profile = () => {
 
         setFavorites(favoritesResponse.data);
       } catch (error) {
+        console.error("Error fetching user data:", error);
         toast.error("Session expired. Please log in again.");
         localStorage.removeItem("token");
         navigate("/login");
@@ -100,3 +102,4 @@ const Profile = () => {
 };
 
 export default Profile;
+

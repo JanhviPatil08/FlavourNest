@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { Container, Spinner, Card, ListGroup } from "react-bootstrap";
 
 const Recipe = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // ✅ Get recipe ID from URL
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,36 +19,42 @@ const Recipe = () => {
         setLoading(false);
       }
     };
+
     fetchRecipe();
   }, [id]);
 
-  if (loading) return <h2 className="text-center">Loading recipe...</h2>;
-  if (!recipe) return <h2 className="text-center">Recipe Not Found!</h2>;
+  if (loading) return <Spinner animation="border" className="d-block mx-auto mt-5" />;
+  if (!recipe) return <h2 className="text-center text-danger">❌ Recipe Not Found!</h2>;
 
   return (
-    <div className="container my-5">
-      <h2 className="text-center">{recipe.title}</h2>
-      <img src={recipe.imageUrl} className="img-fluid rounded mx-auto d-block my-3" alt={recipe.title} />
-      <p className="text-muted text-center">{recipe.description}</p>
+    <Container className="mt-5">
+      <Card className="shadow-lg">
+        <Card.Img variant="top" src={recipe.imageUrl} alt={recipe.title} />
+        <Card.Body>
+          <Card.Title>{recipe.title}</Card.Title>
+          <Card.Text>{recipe.description}</Card.Text>
 
-      <h4>Ingredients:</h4>
-      <ul>
-        {recipe.ingredients?.map((ingredient, index) => (
-          <li key={index}>{ingredient}</li>
-        ))}
-      </ul>
+          <h5>Ingredients:</h5>
+          <ListGroup>
+            {recipe.ingredients?.map((item, index) => (
+              <ListGroup.Item key={index}>{item}</ListGroup.Item>
+            ))}
+          </ListGroup>
 
-      <h4>Instructions:</h4>
-      <ol>
-        {recipe.instructions?.map((step, index) => (
-          <li key={index}>{step}</li>
-        ))}
-      </ol>
+          <h5 className="mt-3">Instructions:</h5>
+          <ol>
+            {recipe.instructions?.map((step, index) => (
+              <li key={index}>{step}</li>
+            ))}
+          </ol>
 
-      <p><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
-    </div>
+          <p><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 };
 
 export default Recipe;
+
 

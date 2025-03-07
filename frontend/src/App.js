@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import RecipeList from "./components/RecipeList";  // ✅ Updated
 import Recipe from "./components/Recipe";
+import Recipes from "./pages/Recipes"; 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -24,7 +25,8 @@ function App() {
             <Route path="/" element={<Home />} />  {/* ✅ Changed `/home` to `/` for default landing */}
             <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/recipes" element={<RecipeList />} />  {/* ✅ Fixed route to show recipe list */}
+            <Route path="/recipelist" element={<RecipeList />} />  {/* ✅ Fixed route to show recipe list */}
+            <Route path="/recipes" element={<Recipes />} />
             <Route path="/recipeform" element={<RecipeForm />} /> 
             <Route path="/recipe/:id" element={<Recipe />} /> {/* ✅ Dynamic route for individual recipes */}
           </Routes>

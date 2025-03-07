@@ -24,7 +24,7 @@ const RecipeForm = () => {
     e.preventDefault();
     setLoading(true);
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("authToken");
     if (!token) {
       toast.error("User not logged in. Please log in first.");
       navigate("/login");
@@ -33,14 +33,17 @@ const RecipeForm = () => {
 
     try {
       const response = await axios.post(
-        "https://flavournest.onrender.com/recipes",
+        "https://flavournest.onrender.com/recipes/add",
         {
           ...formData,
           ingredients: formData.ingredients.split("\n"), // Convert to array
           instructions: formData.instructions.split("\n"), // Convert to array
         },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            "Authorization": `Bearer ${token}`,  // ✅ Send token in headers
+            "Content-Type": "application/json",
+          },
         }
       );
 

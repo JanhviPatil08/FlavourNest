@@ -33,7 +33,7 @@ const RecipeForm = () => {
 
     try {
       const response = await axios.post(
-        "https://flavournest.onrender.com/recipes/add",
+        "https://flavournest.onrender.com/recipes",
         {
           ...formData,
           ingredients: formData.ingredients.split("\n"), // Convert to array

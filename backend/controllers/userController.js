@@ -1,14 +1,19 @@
 import User from "../models/User.js";
 import Recipe from "../models/Recipe.js";
 
-// ✅ Save (Like) or Remove Recipe
-export const toogleFavouriteRecipe = async (req, res) => {
+// ✅ Add or Remove Favorite Recipe
+export const toggleFavouriteRecipe = async (req, res) => {  // ✅ Ensure correct function name
   try {
     const { recipeId } = req.body;
     const user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    const recipeExists = await Recipe.findById(recipeId);
+    if (!recipeExists) {
+      return res.status(404).json({ message: "Recipe not found" });
     }
 
     const index = user.savedRecipes.indexOf(recipeId);
@@ -25,19 +30,20 @@ export const toogleFavouriteRecipe = async (req, res) => {
   }
 };
 
-// ✅ Get User's Favorite Recipes
-export const getFavoriteRecipes = async (req, res) => {
+// ✅ Fetch User's Favorite Recipes
+export const getFavouriteRecipes = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate("savedRecipes");
-    if (!user)
-      { return res.status(404).json({ message: "User not found" });
-  }
+    const user = await User.findById(req.user.id).populate("savedRecipes");  // ✅ Fetch full recipe details
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     res.json(user.savedRecipes);
-    
   } catch (error) {
     res.status(500).json({ message: "❌ Failed to fetch favorite recipes" });
   }
 };
+
 
 // ✅ FIXED: Get User Profile
 export const getUserProfile = async (req, res) => {

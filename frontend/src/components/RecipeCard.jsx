@@ -25,6 +25,15 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
         );
   
         setFavorite(!isFavorite);
+        setFavoriteRecipes((prev) => {
+        const newFavorites = new Set(prev);
+        if (newFavorites.has(recipe._id)) {
+          newFavorites.delete(recipe._id);
+        } else {
+          newFavorites.add(recipe._id);
+        }
+        return newFavorites;
+      });
       } catch (error) {
         console.error("Failed to update favorites", error);
       }

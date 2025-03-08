@@ -1,31 +1,44 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import RecipeCard from "./RecipeCard";
 
 function RecipeList() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [favoriteRecipes, setFavoriteRecipes] = useState(new Set()); // ✅ Fix: Properly initialize
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");  // ✅ Declare token before using
+    const fetchRecipes = async () => {
+      try {
+        const token = localStorage.getItem("authToken");  
+        if (!token) {
+          console.error("User not logged in");
+          return;
+        }
 
-    if (!token) {
-      console.error("User not logged in");
-      return;
-    }
+        // ✅ Fetch user-specific recipes
+        const response = await axios.get("https://flavournest.onrender.com/recipes/user-recipes", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-    axios
-      .get("https://flavournest.onrender.com/recipes/user-recipes", {
-        headers: { Authorization: `Bearer ${token}` },  // ✅ Use token correctly
-      })
-      .then((response) => {
         setRecipes(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
+
+        // ✅ Fetch user's favorite recipes
+        const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const favoriteIds = new Set(favoritesResponse.data.map(recipe => recipe._id));
+        setFavoriteRecipes(favoriteIds);
+
+      } catch (error) {
         console.error("Error fetching recipes:", error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchRecipes();
   }, []);
 
   if (loading) {
@@ -42,20 +55,11 @@ function RecipeList() {
         <div className="row">
           {recipes.map((recipe) => (
             <div key={recipe._id} className="col-md-4 mb-4">
-              <div className="card shadow-sm">
-                <img
-                  src={recipe.imageUrl || "/images/default-image.jpg"}
-                  className="card-img-top"
-                  alt={recipe.title}
-                  onError={(e) => (e.target.src = "/images/default-image.jpg")} 
-                />
-                <div className="card-body">
-                  <h5 className="card-title">{recipe.title}</h5>
-                  <p className="card-text">{recipe.description || "No description available"}</p>
-                  <p><strong>Cooking Time:</strong> {recipe.cookingTime ? `${recipe.cookingTime} minutes` : "N/A"}</p>
-                 
-                </div>
-              </div>
+              <RecipeCard 
+                recipe={recipe}
+                isFavorite={favoriteRecipes.has(recipe._id)}  // ✅ Pass favorite status
+                setFavoriteRecipes={setFavoriteRecipes}  // ✅ Update favorite state
+              />
             </div>
           ))}
         </div>

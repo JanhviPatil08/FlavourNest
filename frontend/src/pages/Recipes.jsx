@@ -39,7 +39,7 @@ const Recipes = () => {
           <Card.Body>
             <Card.Title>{recipe.title}</Card.Title>
             <Card.Text>{recipe.description || "No description available."}</Card.Text>
-            <p><strong>Cooking Time:</strong> {recipe.cookingTime || "N/A"} minutes</p>
+            <p><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
             
             <h5>Ingredients:</h5>
             <ListGroup>

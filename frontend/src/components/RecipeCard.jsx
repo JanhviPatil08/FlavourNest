@@ -70,7 +70,7 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
             className="img-fluid rounded mb-3"
             onError={(e) => { e.target.src = "/images/default-recipe.jpg"; }} // Fallback
           />
-          <p><strong>Cooking Time:</strong> {recipe.cookingTime ? `${recipe.cookingTime} minutes` : "N/A"}</p>
+           <p><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
           
           <h5>Ingredients:</h5>
           <ul>

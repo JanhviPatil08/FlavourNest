@@ -1,5 +1,5 @@
 import express from "express";
-import { getFavorites, getUserProfile } from "../controllers/userController.js";
+import { getFavoriteRecipes, getFavorites, getUserProfile } from "../controllers/userController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -8,7 +8,8 @@ const router = express.Router();
 router.get("/me", authMiddleware, getUserProfile);
 
 // ✅ Get User's Favorite Recipes
-router.get("/favorites", authMiddleware, getFavorites);
+router.get("/favorites", authMiddleware, getFavoriteRecipes);
+router.post("/favorites", authMiddleware, toggleFavoriteRecipe); 
 
 export default router;
 

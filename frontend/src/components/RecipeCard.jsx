@@ -13,31 +13,23 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
     ? recipe.imageUrl
     : "/images/default-recipe.jpg"; // Fallback image
 
-  const handleFavorite = () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("❌ Please log in to save recipes!");
-      return;
-    }
-
-    const url = favorited
-      ? `https://flavournest.onrender.com/users/favorites/${recipe._id}`
-      : "https://flavournest.onrender.com/users/favorites";
-
-    axios({
-      method: favorited ? "DELETE" : "POST",
-      url,
-      data: { recipeId: recipe._id },
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(() => {
-        toast.success(favorited ? "❌ Removed from favorites" : "❤️ Added to favorites");
-        setFavorited(!favorited);
-        refreshFavorites();
-      })
-      .catch(() => toast.error("⚠️ Something went wrong!"));
-  };
-
+    const handleFavoriteClick = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) return alert("Please login first!");
+  
+      try {
+        const response = await axios.post(
+          "https://flavournest.onrender.com/users/favorites",
+          { recipeId: recipe._id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+  
+        setIsFavorite(!isFavorite);
+      } catch (error) {
+        console.error("Failed to update favorites", error);
+      }
+    };
+  
   return (
     <>
       <Card className="recipe-card">
@@ -52,7 +44,7 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
           <Card.Title>{recipe.title}</Card.Title>
           <Card.Text>{recipe.description || "No description available"}</Card.Text>
           <Button variant="outline-success" onClick={() => setShow(true)}>View Recipe</Button>
-          <Button variant="light" className="ms-2" onClick={handleFavorite}>
+          <Button variant="light" className="ms-2" onClick={handleFavoriteClick}>
             {favorited ? <HeartFill color="red" /> : <Heart />}
           </Button>
         </Card.Body>

@@ -1,5 +1,5 @@
 import express from "express";
-import { getFavoriteRecipes, getFavorites, getUserProfile } from "../controllers/userController.js";
+import { getFavoriteRecipes, toggleFavoriteRecipe, getUserProfile } from "../controllers/userController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();

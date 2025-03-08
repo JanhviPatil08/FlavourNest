@@ -16,34 +16,24 @@ const Profile = () => {
   
       if (!token) {
         toast.error("User not logged in. Please log in first.");
-        return navigate("/login");
+        navigate("/login");
+        return
       }
   
       try {
-        // ✅ Fix: Use correct profile API
-        const userResponse = await axios.get("https://flavournest.onrender.com/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(userResponse.data);
-
-        // ✅ Fix: Ensure favorites API exists
+         // ✅ Fix: Ensure favorites API exists
         const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        console.log("Fetched Favorites:", favoritesResponse.data);
         setFavorites(favoritesResponse.data);
 
       } catch (error) {
         console.error("Profile fetch error:", error);
+        toast.error("Error fetching favorite recipes. Try again.");
 
-        // ✅ Fix: Only remove token if it's a 401 Unauthorized error
-        if (error.response && error.response.status === 401) {
-          toast.error("Session expired. Please log in again.");
-          localStorage.removeItem("authToken");
-          navigate("/login");
-        }
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
   
     fetchUserAndFavorites();

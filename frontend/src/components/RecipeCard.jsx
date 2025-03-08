@@ -13,32 +13,31 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
     ? recipe.imageUrl
     : "/images/default-recipe.jpg"; // Fallback image
 
-    const handleFavoriteClick = async () => {
-      const token = localStorage.getItem("authToken");
-      if (!token) return alert("Please login first!");
-  
-      try {
-        const response = await axios.post(
-          "https://flavournest.onrender.com/users/favorites",
-          { recipeId: recipe._id },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-  
-        setFavorite(!isFavorite);
-        setFavoriteRecipes((prev) => {
-        const newFavorites = new Set(prev);
-        if (newFavorites.has(recipe._id)) {
-          newFavorites.delete(recipe._id);
-        } else {
-          newFavorites.add(recipe._id);
-        }
-        return newFavorites;
-      });
-      } catch (error) {
-        console.error("Failed to update favorites", error);
-      }
-    };
-  
+  const handleFavoriteClick = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return alert("Please login first!");
+
+    try {
+      const response = await axios.post(
+        "https://flavournest.onrender.com/users/favorites",
+        { recipeId: recipe._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setFavorite(!favorite); // ✅ Fixed: Use local state
+
+      const favoritesResponse = await axios.get(
+        "https://flavournest.onrender.com/users/favorites",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setFavoriteRecipes(new Set(favoritesResponse.data.map(r => r._id))); // ✅ Fixed placement
+    } catch (error) {
+      console.error("Failed to update favorites", error);
+      alert("Failed to update favorites");
+    }
+  };
+
   return (
     <>
       <Card className="recipe-card">
@@ -54,7 +53,7 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
           <Card.Text>{recipe.description || "No description available"}</Card.Text>
           <Button variant="outline-success" onClick={() => setShow(true)}>View Recipe</Button>
           <Button variant="light" className="ms-2" onClick={handleFavoriteClick}>
-            {favorite? <HeartFill color="red" /> : <Heart />}
+            {favorite ? <HeartFill color="red" /> : <Heart />}
           </Button>
         </Card.Body>
       </Card>
@@ -71,8 +70,8 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
             className="img-fluid rounded mb-3"
             onError={(e) => { e.target.src = "/images/default-recipe.jpg"; }} // Fallback
           />
-           <p><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
-          
+          <p><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
+
           <h5>Ingredients:</h5>
           <ul>
             {Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0

@@ -16,11 +16,11 @@ export const toggleFavouriteRecipe = async (req, res) => {  // ✅ Ensure correc
       return res.status(404).json({ message: "Recipe not found" });
     }
 
-    const index = user.savedRecipes.indexOf(recipeId);
-    if (index === -1) {
-      user.savedRecipes.push(recipeId);  // ✅ Add recipe to favorites
+    const isAlreadySaved = user.savedRecipes.includes(recipeId);
+    if (isAlreadySaved) {
+      user.savedRecipes = user.savedRecipes.filter(id => id.toString() !== recipeId);  // ✅ Remove from favorites
     } else {
-      user.savedRecipes.splice(index, 1);  // ✅ Remove recipe from favorites
+      user.savedRecipes.push(recipeId);  // ✅ Add to favorites
     }
 
     await user.save();

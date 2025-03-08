@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 function RecipeList() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem("authToken");  // ✅ Declare token before using
+
+    if (!token) {
+      console.error("User not logged in");
+      return;
+    }
+
     axios
       .get("https://flavournest.onrender.com/recipes/user-recipes", {
-        headers: { Authorization: `Bearer ${token}` },  // ✅ Send token for authentication
+        headers: { Authorization: `Bearer ${token}` },  // ✅ Use token correctly
       })
       .then((response) => {
         setRecipes(response.data);
@@ -36,18 +43,17 @@ function RecipeList() {
           {recipes.map((recipe) => (
             <div key={recipe._id} className="col-md-4 mb-4">
               <div className="card shadow-sm">
-                {/* ✅ Ensures Image URL is properly used */}
                 <img
                   src={recipe.imageUrl || "/images/default-image.jpg"}
                   className="card-img-top"
                   alt={recipe.title}
-                  onError={(e) => (e.target.src = "/images/default-image.jpg")} // Fallback Image
+                  onError={(e) => (e.target.src = "/images/default-image.jpg")} 
                 />
                 <div className="card-body">
                   <h5 className="card-title">{recipe.title}</h5>
                   <p className="card-text">{recipe.description || "No description available"}</p>
-                  <p><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
-                  
+                  <p><strong>Cooking Time:</strong> {recipe.cookingTime ? `${recipe.cookingTime} minutes` : "N/A"}</p>
+                  <Link to={`/recipe/${recipe._id}`} className="btn btn-success">View Recipe</Link>
                 </div>
               </div>
             </div>
@@ -59,4 +65,3 @@ function RecipeList() {
 }
 
 export default RecipeList;
-

@@ -16,17 +16,19 @@ export const toggleFavouriteRecipe = async (req, res) => {  // ✅ Ensure correc
       return res.status(404).json({ message: "Recipe not found" });
     }
 
-    const isAlreadySaved = user.savedRecipes.includes(recipeId);
-    if (isAlreadySaved) {
-      user.savedRecipes = user.savedRecipes.filter(id => id.toString() !== recipeId);  // ✅ Remove from favorites
-    } else {
+    // ✅ Toggle favorite (add/remove)
+    const index = user.savedRecipes.indexOf(recipeId);
+    if (index === -1) {
       user.savedRecipes.push(recipeId);  // ✅ Add to favorites
+    } else {
+      user.savedRecipes.splice(index, 1);  // ✅ Remove from favorites
     }
+    
 
     await user.save();
     res.json({ message: "✅ Favorite list updated", savedRecipes: user.savedRecipes });
   } catch (error) {
-    res.status(500).json({ message: "❌ Failed to update favorites" });
+    res.status(500).json({ message: "❌ Failed to update favorites", error: error.message });
   }
 };
 

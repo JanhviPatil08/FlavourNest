@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { Heart, HeartFill } from "react-bootstrap-icons";
 
 const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
-  const [favorited, setFavorited] = useState(isFavorite);
+  const [favorite, setFavorite] = useState(isFavorite);
   const [show, setShow] = useState(false);
 
   // ✅ FIXED: Ensure correct image URL from user input
@@ -24,7 +24,7 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
   
-        setIsFavorite(!isFavorite);
+        setFavorite(!isFavorite);
       } catch (error) {
         console.error("Failed to update favorites", error);
       }
@@ -45,7 +45,7 @@ const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
           <Card.Text>{recipe.description || "No description available"}</Card.Text>
           <Button variant="outline-success" onClick={() => setShow(true)}>View Recipe</Button>
           <Button variant="light" className="ms-2" onClick={handleFavoriteClick}>
-            {favorited ? <HeartFill color="red" /> : <Heart />}
+            {favorite? <HeartFill color="red" /> : <Heart />}
           </Button>
         </Card.Body>
       </Card>

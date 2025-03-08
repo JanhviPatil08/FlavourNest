@@ -7,7 +7,7 @@ const RecipeSchema = new mongoose.Schema({
   instructions: { type: [String], required: true },
   cookingTime: { type: Number, required: true },
   imageUrl: { type: String, required: true }, // ✅ Ensure imageUrl is required
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // ✅ Link to user
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // ✅ Link to user
 });
 
 const RecipeModel = mongoose.model("Recipe", RecipeSchema);

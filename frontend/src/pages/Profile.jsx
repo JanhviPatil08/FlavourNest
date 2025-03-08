@@ -12,35 +12,48 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchUserAndFavorites = async () => {
-      const token = localStorage.getItem("authToken");  // ✅ Fix: Correct key
-  
+      const token = localStorage.getItem("authToken");
+
       if (!token) {
         toast.error("User not logged in. Please log in first.");
         navigate("/login");
-        return
+        return;
       }
-  
+
       try {
-         // ✅ Fix: Ensure favorites API exists
+        // ✅ Fetch user details first
+        const userResponse = await axios.get("https://flavournest.onrender.com/auth/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log("User Data:", userResponse.data); // Debugging log
+        setUser(userResponse.data); // ✅ Set user details
+
+        // ✅ Fetch user's favorite recipes
         const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log("Fetched Favorites:", favoritesResponse.data);
-        setFavorites(favoritesResponse.data);
+        console.log("Fetched Favorites:", favoritesResponse.data); // Debugging log
+        setFavorites(favoritesResponse.data); // ✅ Store favorite recipes
 
       } catch (error) {
         console.error("Profile fetch error:", error);
-        toast.error("Error fetching favorite recipes. Try again.");
-
-      } 
+        toast.error("Error fetching profile or favorite recipes.");
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("authToken");
+          navigate("/login");
+        }
+      } finally {
+        setLoading(false); // ✅ Fix: Ensure loading stops after API calls
+      }
     };
-  
+
     fetchUserAndFavorites();
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");  // ✅ Fix: Correct key
+    localStorage.removeItem("authToken");
     toast.success("Logged out successfully!");
     navigate("/login");
   };

@@ -2,7 +2,7 @@ import User from "../models/User.js";
 import Recipe from "../models/Recipe.js";
 
 // ✅ Add or Remove Favorite Recipe
-export const toogleFavoriteRecipe = async (req, res) => {  // ✅ Ensure correct function name
+export const toogleFavouriteRecipe = async (req, res) => {  // ✅ Ensure correct function name
   try {
     const { recipeId } = req.body;
     const user = await User.findById(req.user.id);

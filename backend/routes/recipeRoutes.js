@@ -6,7 +6,7 @@ const router = express.Router();
 
 // ✅ Get All Recipes (Public)
 router.get("/", getRecipes);
-
+router.get("/user-recipes", authMiddleware, getUserRecipes);
 // ✅ Create Recipe (Requires Authentication)
 router.post("/", authMiddleware, createRecipe);
 

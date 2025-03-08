@@ -54,3 +54,18 @@ export const getRecipes = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch recipes." });
   }
 };
+
+// ✅ Fetch Only Logged-in User's Recipes
+export const getUserRecipes = async (req, res) => {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ message: "Unauthorized. Please log in." });
+    }
+
+    const recipes = await Recipe.find({ createdBy: req.user.id });  // ✅ Filter by logged-in user
+    res.json(recipes);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch user recipes." });
+  }
+};
+

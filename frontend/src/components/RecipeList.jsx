@@ -8,7 +8,9 @@ function RecipeList() {
 
   useEffect(() => {
     axios
-      .get("https://flavournest.onrender.com/recipes")
+      .get("https://flavournest.onrender.com/recipes/user-recipes", {
+        headers: { Authorization: `Bearer ${token}` },  // ✅ Send token for authentication
+      })
       .then((response) => {
         setRecipes(response.data);
         setLoading(false);

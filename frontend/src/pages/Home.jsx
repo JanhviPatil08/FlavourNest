@@ -84,7 +84,7 @@ const Home = () => {
             className="img-fluid rounded mb-3"
             onError={(e) => { e.target.src = "https://via.placeholder.com/400"; }}
           />
-          <p><strong>Estimated Time:</strong> {selectedRecipe?.time || "N/A"} minutes</p>
+          <p><strong>Cooking Time:</strong> {selectedRecipe?.cookingtime || "N/A"} minutes</p>
 
           <h5>Ingredients:</h5>
           <ListGroup>

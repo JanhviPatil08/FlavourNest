@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { Heart, HeartFill } from "react-bootstrap-icons";
 
-const RecipeCard = ({ recipe, isFavorite, refreshFavorites }) => {
+const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
   const [favorite, setFavorite] = useState(isFavorite);
   const [show, setShow] = useState(false);
 

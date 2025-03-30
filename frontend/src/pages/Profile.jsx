@@ -7,13 +7,13 @@ import { Container, Row, Col, Card, Button, Spinner } from "react-bootstrap";
 const Profile = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState([]); // ✅ Store saved recipes
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    fetchUserAndFavorites(); // Fetch on mount
-  }, [location]); // 🔥 Re-fetch when navigating back to Profile Page
+    fetchUserAndFavorites(); // ✅ Fetch on mount & when navigating back
+  }, [location]);
 
   const fetchUserAndFavorites = async () => {
     const token = localStorage.getItem("authToken");
@@ -25,7 +25,7 @@ const Profile = () => {
     }
 
     try {
-      // ✅ Fetch user details first
+      // ✅ Fetch user details
       const userResponse = await axios.get("https://flavournest.onrender.com/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -36,16 +36,45 @@ const Profile = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("Fetched Favorites:", favoritesResponse.data); // ✅ Debugging Step
+      console.log("✅ Fetched Favorites:", favoritesResponse.data);
 
-      // 🛠 Ensure we extract the correct array of recipes
-      setFavorites(favoritesResponse.data.favorites || favoritesResponse.data);
+      // ✅ Ensure we extract the correct array of recipes
+      setFavorites(favoritesResponse.data.savedRecipes || favoritesResponse.data);
 
     } catch (error) {
       console.error("❌ Error fetching profile or favorites:", error);
       toast.error("Error fetching profile or favorite recipes.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ Function to toggle favorite recipes
+  const toggleFavorite = async (recipeId) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      toast.error("User not logged in. Please log in first.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "https://flavournest.onrender.com/users/savedRecipes", // ✅ Matches backend
+        { recipeId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("✅ Favorite Updated:", response.data);
+      setFavorites(response.data.savedRecipes || response.data.favorites); // ✅ Update state
+
+    } catch (error) {
+      console.error("❌ Error updating favorite:", error);
+      toast.error("Could not update favorites. Try again.");
     }
   };
 
@@ -88,6 +117,12 @@ const Profile = () => {
                 <Card.Body>
                   <Card.Title>{recipe.title}</Card.Title>
                   <Card.Text>{recipe.description || "No description available"}</Card.Text>
+                  <Button
+                    variant={favorites.some((fav) => fav._id === recipe._id) ? "danger" : "outline-danger"}
+                    onClick={() => toggleFavorite(recipe._id)}
+                  >
+                    {favorites.some((fav) => fav._id === recipe._id) ? "Remove ❤️" : "Add 🤍"}
+                  </Button>
                 </Card.Body>
               </Card>
             </Col>
@@ -99,7 +134,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
-
-
-

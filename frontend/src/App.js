@@ -18,34 +18,19 @@ import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
-  const [authToken, setAuthToken] = useState(localStorage.getItem("authToken"));
+  const [authToken, setAuthToken] = useState(localStorage.getItem("authToken") || null);
 
-  // ✅ Update axios headers whenever the token changes
   useEffect(() => {
+    setTimeout(() => setShowSplash(false), 3000); // Show splash for 3 seconds
+
+    // ✅ Ensure Axios always has the token on app load
     if (authToken) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
-    } else {
-      delete axios.defaults.headers.common["Authorization"];
     }
   }, [authToken]);
 
-  // ✅ Handle Logout
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
-    setAuthToken(null);
-    window.location.href = "/login"; // Force refresh to clear state
-  };
-
-  // ✅ Auto-hide splash screen
-  useEffect(() => {
-    setTimeout(() => setShowSplash(false), 3000);
-  }, []);
-
-  // ✅ Protected Route Component
-  const PrivateRoute = ({ element }) => {
-    return authToken ? element : <Navigate to="/login" />;
-  };
+  // ✅ Check if user is logged in
+  const isAuthenticated = !!authToken;
 
   return (
     <Router>
@@ -53,17 +38,17 @@ function App() {
         <SplashScreen />
       ) : (
         <div className="app-container">
-          <Navbar authToken={authToken} handleLogout={handleLogout} />
+          <Navbar />
           <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
           <div className="content">
             <Routes>
-              <Route path="/" element={<Navigate to="/login" />} />
+              <Route path="/" element={<Navigate to={isAuthenticated ? "/home" : "/login"} />} />
               <Route path="/login" element={<Login setAuthToken={setAuthToken} />} />
               <Route path="/home" element={<Home />} />
               <Route path="/recipes" element={<RecipeList />} />
-              <Route path="/add-recipe" element={<PrivateRoute element={<RecipeForm />} />} />
+              <Route path="/add-recipe" element={isAuthenticated ? <RecipeForm /> : <Navigate to="/login" />} />
               <Route path="/recipe/:id" element={<Recipe />} />
-              <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
+              <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
             </Routes>
           </div>
           <Footer />
@@ -74,3 +59,4 @@ function App() {
 }
 
 export default App;
+

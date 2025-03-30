@@ -21,39 +21,38 @@ const Profile = () => {
       }
 
       try {
-        // ✅ Fetch user details first
+        // ✅ Fetch user details
         const userResponse = await axios.get("https://flavournest.onrender.com/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        setUser(userResponse.data); // ✅ Set user details
+        setUser(userResponse.data); // ✅ Store user details
 
         // ✅ Fetch user's favorite recipes
         const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
+        if (!Array.isArray(favoritesResponse.data)) {
+          throw new Error("Invalid response format for favorites.");
+        }
+
         setFavorites(favoritesResponse.data); // ✅ Store favorite recipes
+
       } catch (error) {
         console.error("Profile fetch error:", error);
         
         if (error.response) {
-          // 🔴 API returned an error response
-          toast.error(error.response.data.message || "Failed to fetch profile!");
+          toast.error(error.response.data.message || "Unable to fetch profile.");
           if (error.response.status === 401) {
-            // 🔄 Unauthorized - force logout
             localStorage.removeItem("authToken");
             navigate("/login");
           }
-        } else if (error.request) {
-          // 🔴 No response received from server
-          toast.error("⚠️ Server not responding! Try again later.");
         } else {
-          // 🔴 Request failed before it was sent
-          toast.error("❌ Unexpected error occurred.");
+          toast.error("⚠️ Network error or server not responding!");
         }
       } finally {
-        setLoading(false); // ✅ Fix: Ensure loading stops after API calls
+        setLoading(false); // ✅ Ensure loading stops
       }
     };
 

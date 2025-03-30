@@ -6,31 +6,20 @@ import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 
-const Login = () => {
+const Login = ({ setAuthToken }) => {
   const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Validate email format
-  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
-
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    if (!validateEmail(formData.email)) {
-      toast.error("❌ Invalid email format!");
-      setLoading(false);
-      return;
-    }
 
     try {
       const url = isRegister
@@ -50,7 +39,8 @@ const Login = () => {
           localStorage.setItem("authToken", token);
           localStorage.setItem("user", JSON.stringify(user));
 
-          // ✅ Ensure Axios always has the token
+          // ✅ Update app state & Axios
+          setAuthToken(token);
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
           // ✅ Redirect to Home
@@ -103,23 +93,6 @@ const Login = () => {
               {loading ? <Spinner animation="border" size="sm" /> : isRegister ? "Register" : "Login"}
             </Button>
           </Form>
-          <div className="text-center mt-3">
-            {isRegister ? (
-              <p>
-                Already have an account?{" "}
-                <Button variant="link" className="p-0" onClick={() => setIsRegister(false)}>
-                  Login
-                </Button>
-              </p>
-            ) : (
-              <p>
-                New here?{" "}
-                <Button variant="link" className="p-0" onClick={() => setIsRegister(true)}>
-                  Register
-                </Button>
-              </p>
-            )}
-          </div>
         </Card.Body>
       </Card>
     </Container>

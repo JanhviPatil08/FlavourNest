@@ -100,10 +100,10 @@ const Profile = () => {
         <Button variant="success" onClick={() => navigate("/login")}>Login</Button>
       )}
 
-      <h3 className="mt-4">Favorite Recipes ❤️</h3>
+      <h3 className="mt-4">Your Favourite Recipe Place  ❤️</h3>
       <Row className="mt-3">
         {favorites.length === 0 ? (
-          <p className="text-muted">You haven't saved any favorite recipes yet.</p>
+          <p className="text-muted">p>
         ) : (
           favorites.map((recipe) => (
             <Col md={4} key={recipe._id} className="mb-4">

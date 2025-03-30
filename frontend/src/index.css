@@ -278,6 +278,11 @@ html {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 /* ✅ Make the carousel look premium */
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+}
+
 .carousel-item-custom {
   position: relative;
   height: 450px;
@@ -317,4 +322,3 @@ html {
   max-width: 80%;
   margin: auto;
 }
-

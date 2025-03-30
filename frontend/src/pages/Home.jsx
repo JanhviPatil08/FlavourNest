@@ -18,7 +18,7 @@ const Home = () => {
     const token = localStorage.getItem("authToken");
 
     if (!token) {
-      navigate("/login");
+      navigate("/login", { replace: true }); // ✅ Redirects without adding to history
       return;
     }
 
@@ -35,7 +35,7 @@ const Home = () => {
         setRecipes([]);
         setFilteredRecipes([]);
       });
-  }, [navigate]);
+  }, []); // ✅ Removed `navigate` dependency to avoid unnecessary re-renders
 
   useEffect(() => {
     const filtered = recipes.filter((recipe) =>
@@ -184,4 +184,5 @@ const Home = () => {
 };
 
 export default Home;
+
 

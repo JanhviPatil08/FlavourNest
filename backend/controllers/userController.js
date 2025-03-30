@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import Recipe from "../models/Recipe.js";
 
-// ✅ Add or Remove Favorite Recipe
+// ✅ Add or Remove Favorite Recipe (More Efficient)
 export const toggleFavouriteRecipe = async (req, res) => {
   try {
     const { recipeId } = req.body;
@@ -21,20 +21,17 @@ export const toggleFavouriteRecipe = async (req, res) => {
       return res.status(404).json({ message: "Recipe not found" });
     }
 
-    // ✅ Toggle favorite (add/remove)
-    if (user.savedRecipes.some((id) => id.toString() === recipeId)) {
-      console.log("🟠 Removing recipe from favorites...");
-      user.savedRecipes = user.savedRecipes.filter((id) => id.toString() !== recipeId);
-    } else {
-      console.log("🟢 Adding recipe to favorites...");
-      user.savedRecipes.push(recipeId);
-    }
+    // ✅ Toggle favorite using $pull or $addToSet
+    const updateAction = user.savedRecipes.includes(recipeId)
+      ? { $pull: { savedRecipes: recipeId } }  // Remove from favorites
+      : { $addToSet: { savedRecipes: recipeId } }; // Add to favorites
 
-    await user.save();
+    const updatedUser = await User.findByIdAndUpdate(userId, updateAction, { new: true })
+      .populate("savedRecipes");
 
-    console.log("✅ Updated savedRecipes:", user.savedRecipes);
+    console.log("✅ Updated savedRecipes:", updatedUser.savedRecipes);
 
-    res.json({ message: "✅ Favorite list updated", favorites: user.savedRecipes });
+    res.json({ message: "✅ Favorite list updated", favorites: updatedUser.savedRecipes });
   } catch (error) {
     console.error("❌ Failed to update favorites:", error);
     res.status(500).json({ message: "Failed to update favorites", error: error.message });
@@ -51,7 +48,7 @@ export const getFavouriteRecipes = async (req, res) => {
 
     console.log("🟢 Fetching favorite recipes:", user.savedRecipes);
 
-    res.json({ favorites: user.savedRecipes }); // ✅ Returning full recipe details
+    res.json(user.savedRecipes); // ✅ Returning only the recipes array
   } catch (error) {
     console.error("❌ Failed to fetch favorite recipes:", error);
     res.status(500).json({ message: "Failed to fetch favorite recipes" });
@@ -79,4 +76,5 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 

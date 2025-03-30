@@ -1,8 +1,8 @@
 import User from "../models/User.js";
 import Recipe from "../models/Recipe.js";
-import mongoose from "mongoose";  // ✅ Ensure ObjectId conversion
+import mongoose from "mongoose"; // ✅ Ensure ObjectId conversion
 
-// ✅ Add or Remove Favorite Recipe
+// ✅ Add or Remove Favorite Recipe (More Efficient)
 export const toggleFavouriteRecipe = async (req, res) => {
   try {
     const { recipeId } = req.body;
@@ -10,41 +10,40 @@ export const toggleFavouriteRecipe = async (req, res) => {
 
     console.log("✅ Received request to toggle favorite:", { userId, recipeId });
 
+    // ✅ Convert to ObjectId (ensures compatibility)
     if (!mongoose.Types.ObjectId.isValid(recipeId)) {
-      console.log("🔴 Invalid Recipe ID");
       return res.status(400).json({ message: "Invalid recipe ID" });
     }
-
     const recipeObjectId = new mongoose.Types.ObjectId(recipeId);
 
-    // ✅ Ensure user and recipe exist
-    const [user, recipe] = await Promise.all([
-      User.findById(userId),
-      Recipe.findById(recipeObjectId),
-    ]);
-
+    // ✅ Find user and recipe
+    const user = await User.findById(userId);
     if (!user) {
       console.log("🔴 User not found");
       return res.status(404).json({ message: "User not found" });
     }
 
+    const recipe = await Recipe.findById(recipeObjectId);
     if (!recipe) {
       console.log("🔴 Recipe not found");
       return res.status(404).json({ message: "Recipe not found" });
     }
 
-    // ✅ Toggle favorite using $pull or $addToSet
-    const isFavorite = user.savedRecipes.some((id) => id.equals(recipeObjectId));
-    const updateAction = isFavorite
-      ? { $pull: { savedRecipes: recipeObjectId } }  // Remove from favorites
-      : { $addToSet: { savedRecipes: recipeObjectId } }; // Add to favorites
+    // ✅ Check if the recipe is already saved
+    const isFavorite = user.savedRecipes.some((id) => id.toString() === recipeId);
+    if (isFavorite) {
+      console.log("🟠 Removing recipe from favorites...");
+      user.savedRecipes = user.savedRecipes.filter((id) => id.toString() !== recipeId);
+    } else {
+      console.log("🟢 Adding recipe to favorites...");
+      user.savedRecipes.push(recipeObjectId);
+    }
 
-    // ✅ Update user and fetch updated favorites
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      updateAction,
-      { new: true }
-    ).populate("savedRecipes");
+    // ✅ Save updated user
+    await user.save();
+
+    // ✅ Populate recipes to return full details
+    const updatedUser = await User.findById(userId).populate("savedRecipes");
 
     console.log("✅ Updated savedRecipes:", updatedUser.savedRecipes);
 
@@ -64,6 +63,7 @@ export const getFavouriteRecipes = async (req, res) => {
     }
 
     console.log("🟢 Fetching favorite recipes:", user.savedRecipes);
+
     res.json(user.savedRecipes); // ✅ Returning only the recipes array
   } catch (error) {
     console.error("❌ Failed to fetch favorite recipes:", error);
@@ -77,7 +77,6 @@ export const getUserProfile = async (req, res) => {
     const user = await User.findById(req.user.id)
       .populate("savedRecipes")
       .select("-password");
-
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

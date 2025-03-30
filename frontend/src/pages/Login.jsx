@@ -15,7 +15,6 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle form submission for registration or login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -32,15 +31,16 @@ const Login = () => {
 
         if (!isRegister) {
           const { token, user } = response.data;
-
           if (!token) throw new Error("Token not received from server.");
 
           // ✅ Store token & user info
           localStorage.setItem("authToken", token);
           localStorage.setItem("user", JSON.stringify(user));
+
+          // ✅ Ensure Axios always has the token
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-          // ✅ Redirect to Home with Smooth Transition
+          // ✅ Redirect to Home
           setTimeout(() => {
             navigate("/home", { replace: true });
           }, 500);
@@ -59,39 +59,13 @@ const Login = () => {
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
       <Card className="p-4 shadow-lg rounded-4" style={{ width: "100%", maxWidth: "400px" }}>
         <Card.Body>
-          <h2 className="text-center text-success fw-bold">
-            {isRegister ? "Join FlavourNest" : "Welcome Back"}
-          </h2>
-
+          <h2 className="text-center text-success fw-bold">{isRegister ? "Join FlavourNest" : "Welcome Back"}</h2>
           <Form onSubmit={handleSubmit}>
-            {isRegister && (
-              <Form.Group className="mb-3">
-                <Form.Label>Name</Form.Label>
-                <Form.Control type="text" name="name" value={formData.name} onChange={handleChange} required />
-              </Form.Group>
-            )}
-
-            <Form.Group className="mb-3">
-              <Form.Label>Email</Form.Label>
-              <Form.Control type="email" name="email" value={formData.email} onChange={handleChange} required />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control type="password" name="password" value={formData.password} onChange={handleChange} required />
-            </Form.Group>
-
-            <Button type="submit" variant="success" className="w-100" disabled={loading}>
-              {loading ? <Spinner animation="border" size="sm" /> : isRegister ? "Register" : "Login"}
-            </Button>
+            {isRegister && <Form.Group className="mb-3"><Form.Label>Name</Form.Label><Form.Control type="text" name="name" value={formData.name} onChange={handleChange} required /></Form.Group>}
+            <Form.Group className="mb-3"><Form.Label>Email</Form.Label><Form.Control type="email" name="email" value={formData.email} onChange={handleChange} required /></Form.Group>
+            <Form.Group className="mb-3"><Form.Label>Password</Form.Label><Form.Control type="password" name="password" value={formData.password} onChange={handleChange} required /></Form.Group>
+            <Button type="submit" variant="success" className="w-100" disabled={loading}>{loading ? <Spinner animation="border" size="sm" /> : isRegister ? "Register" : "Login"}</Button>
           </Form>
-
-          <p className="text-center mt-3">
-            {isRegister ? "Already have an account?" : "Don't have an account?"}{" "}
-            <span className="text-primary" style={{ cursor: "pointer" }} onClick={() => setIsRegister(!isRegister)}>
-              {isRegister ? "Login" : "Sign Up"}
-            </span>
-          </p>
         </Card.Body>
       </Card>
     </Container>
@@ -99,3 +73,5 @@ const Login = () => {
 };
 
 export default Login;
+
+

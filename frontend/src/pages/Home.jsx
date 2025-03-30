@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
 import { Carousel, Container, Row, Col, Card, Button, Form, Modal } from "react-bootstrap";
 import { motion } from "framer-motion";
@@ -9,7 +9,7 @@ const Home = () => {
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
-  const [favorites, setFavorites] = useState([]); // 🆕 Favorites from the backend
+  const [favorites, setFavorites] = useState([]); // Fetch from the backend
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [show, setShow] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,11 +33,17 @@ const Home = () => {
       })
       .catch((error) => {
         console.error("❌ Error fetching recipes:", error);
-        setRecipes([]);
-        setFilteredRecipes([]);
       });
 
     // ✅ Fetch user's favorite recipes
+    fetchFavorites();
+  }, [navigate]);
+
+  // Function to fetch updated favorites
+  const fetchFavorites = () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+
     axios
       .get("https://flavournest.onrender.com/users/favorites", {
         headers: { Authorization: `Bearer ${token}` },
@@ -48,22 +54,9 @@ const Home = () => {
       .catch((error) => {
         console.error("❌ Error fetching favorites:", error);
       });
-  }, [navigate]);
+  };
 
-  // Debounced search
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setFilteredRecipes(
-        recipes.filter((recipe) =>
-          recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      );
-    }, 300);
-
-    return () => clearTimeout(timeout);
-  }, [searchQuery, recipes]);
-
-  // ✅ Handle favorites API call
+  // ✅ Handle favorites API call (Add/Remove from backend)
   const handleFavorite = async (id) => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -92,6 +85,7 @@ const Home = () => {
       }
 
       setFavorites(updatedFavorites);
+      fetchFavorites(); // ✅ Ensure UI updates with latest favorites
     } catch (error) {
       console.error("❌ Error updating favorites:", error);
     }
@@ -174,5 +168,6 @@ const Home = () => {
 };
 
 export default Home;
+
 
 

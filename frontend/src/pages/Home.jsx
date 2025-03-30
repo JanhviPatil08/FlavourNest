@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
 import { Carousel, Container, Row, Col, Card, Button, ListGroup, Modal, Form } from "react-bootstrap";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const Home = () => {
+  const navigate = useNavigate(); // ✅ Initialize navigation
   const [recipes, setRecipes] = useState([]); // Stores all recipes
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -12,9 +14,20 @@ const Home = () => {
   const [show, setShow] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ✅ Fetch All Recipes from Backend (Frontend will display latest 5 in the carousel)
+  // ✅ Check if the user is logged in before loading the page
   useEffect(() => {
-    axios.get("https://flavournest.onrender.com/recipes")
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      navigate("/login"); // Redirect to login if token is missing
+      return;
+    }
+
+    // ✅ Fetch All Recipes from Backend
+    axios
+      .get("https://flavournest.onrender.com/recipes", {
+        headers: { Authorization: `Bearer ${token}` }, // ✅ Include token in request
+      })
       .then((response) => {
         setRecipes(response.data);
         setFilteredRecipes(response.data); // Initially, show all recipes
@@ -24,11 +37,11 @@ const Home = () => {
         setRecipes([]);
         setFilteredRecipes([]);
       });
-  }, []);
+  }, [navigate]); // ✅ Add navigate to dependencies
 
   // ✅ Search Functionality (Filters Recipes)
   useEffect(() => {
-    const filtered = recipes.filter(recipe =>
+    const filtered = recipes.filter((recipe) =>
       recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredRecipes(filtered);
@@ -166,3 +179,4 @@ const Home = () => {
 };
 
 export default Home;
+

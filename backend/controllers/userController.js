@@ -7,7 +7,7 @@ export const toggleFavouriteRecipe = async (req, res) => {
   try {
     const { recipeId } = req.body;
     const userId = req.user.id;
-
+    console.log("✅ Received request to toggle favorite:", req.body);
     console.log("🟡 Request to toggle favorite:", { userId, recipeId });
 
     // ✅ Convert to ObjectId

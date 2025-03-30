@@ -21,9 +21,6 @@ const Login = () => {
   // Validate email format
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
-  // Validate password length
-  const validatePassword = (password) => password.length >= 6;
-
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,12 +28,6 @@ const Login = () => {
 
     if (!validateEmail(formData.email)) {
       toast.error("❌ Invalid email format!");
-      setLoading(false);
-      return;
-    }
-
-    if (!validatePassword(formData.password)) {
-      toast.error("🔑 Password must be at least 6 characters!");
       setLoading(false);
       return;
     }
@@ -136,6 +127,7 @@ const Login = () => {
 };
 
 export default Login;
+
 
 
 

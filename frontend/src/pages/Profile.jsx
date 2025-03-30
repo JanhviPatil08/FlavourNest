@@ -21,38 +21,29 @@ const Profile = () => {
       }
 
       try {
-        // ✅ Fetch user details
-        const userResponse = await axios.get("https://flavournest.onrender.com/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // ✅ Ensure Axios always has the token
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-        setUser(userResponse.data); // ✅ Store user details
+        // ✅ Fetch user details first
+        const { data: userData } = await axios.get("https://flavournest.onrender.com/auth/me");
+        console.log("User Data:", userData);
+        setUser(userData); 
 
         // ✅ Fetch user's favorite recipes
-        const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!Array.isArray(favoritesResponse.data)) {
-          throw new Error("Invalid response format for favorites.");
-        }
-
-        setFavorites(favoritesResponse.data); // ✅ Store favorite recipes
+        const { data: favoriteRecipes } = await axios.get("https://flavournest.onrender.com/users/favorites");
+        console.log("Fetched Favorites:", favoriteRecipes);
+        setFavorites(favoriteRecipes);
 
       } catch (error) {
         console.error("Profile fetch error:", error);
-        
-        if (error.response) {
-          toast.error(error.response.data.message || "Unable to fetch profile.");
-          if (error.response.status === 401) {
-            localStorage.removeItem("authToken");
-            navigate("/login");
-          }
-        } else {
-          toast.error("⚠️ Network error or server not responding!");
+        toast.error(error.response?.data?.message || "Error fetching profile or favorite recipes.");
+
+        if (error.response?.status === 401) {
+          localStorage.removeItem("authToken");
+          navigate("/login");
         }
       } finally {
-        setLoading(false); // ✅ Ensure loading stops
+        setLoading(false);
       }
     };
 
@@ -109,4 +100,5 @@ const Profile = () => {
 };
 
 export default Profile;
+
 

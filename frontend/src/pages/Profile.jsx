@@ -1,54 +1,51 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Container, Row, Col, Card, Button, Spinner } from "react-bootstrap";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const fetchUserAndFavorites = async () => {
-      const token = localStorage.getItem("authToken");
+    fetchUserAndFavorites(); // Fetch on mount
+  }, [location]); // 🔥 Re-fetch when navigating back to Profile Page
 
-      if (!token) {
-        toast.error("User not logged in. Please log in first.");
-        navigate("/login");
-        return;
-      }
+  const fetchUserAndFavorites = async () => {
+    const token = localStorage.getItem("authToken");
 
-      try {
-        // ✅ Ensure Axios always has the token
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    if (!token) {
+      toast.error("User not logged in. Please log in first.");
+      navigate("/login");
+      return;
+    }
 
-        // ✅ Fetch user details first
-        const { data: userData } = await axios.get("https://flavournest.onrender.com/auth/me");
-        console.log("User Data:", userData);
-        setUser(userData); 
+    try {
+      // ✅ Fetch user details first
+      const userResponse = await axios.get("https://flavournest.onrender.com/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser(userResponse.data);
 
-        // ✅ Fetch user's favorite recipes
-        const { data: favoriteRecipes } = await axios.get("https://flavournest.onrender.com/users/favorites");
-        console.log("Fetched Favorites:", favoriteRecipes);
-        setFavorites(favoriteRecipes);
+      // ✅ Fetch user's favorite recipes
+      const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      } catch (error) {
-        console.error("Profile fetch error:", error);
-        toast.error(error.response?.data?.message || "Error fetching profile or favorite recipes.");
+      console.log("Fetched Favorites:", favoritesResponse.data);
+      setFavorites(favoritesResponse.data);
 
-        if (error.response?.status === 401) {
-          localStorage.removeItem("authToken");
-          navigate("/login");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserAndFavorites();
-  }, [navigate]);
+    } catch (error) {
+      console.error("Error fetching profile or favorites:", error);
+      toast.error("Error fetching profile or favorite recipes.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -100,5 +97,6 @@ const Profile = () => {
 };
 
 export default Profile;
+
 
 

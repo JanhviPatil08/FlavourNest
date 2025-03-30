@@ -238,4 +238,43 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Smooth Page Transition */
+.page-transition {
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* ✅ Fix Carousel Image to Full Width */
+.carousel-image {
+  width: 100%;
+  height: 450px; /* Adjust height as needed */
+  object-fit: cover; /* Ensures full coverage without distortion */
+}
+
+/* ✅ Fix Recipe Card Image */
+.recipe-img {
+  height: 250px;
+  object-fit: cover;
+}
+
+/* ✅ Add Smooth Fade-in Effect */
+.recipe-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.recipe-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
 

@@ -46,7 +46,7 @@ const Home = () => {
   };
 
   // ✅ Get the last 5 added recipes for the Carousel
-  const latestRecipes = recipes.slice(-5).reverse(); // Get last 5 recipes in reverse order
+  const latestRecipes = recipes.slice(-5).reverse();
 
   return (
     <Container className="mt-4">
@@ -55,7 +55,12 @@ const Home = () => {
         {latestRecipes.length > 0 ? (
           latestRecipes.map((recipe, index) => (
             <Carousel.Item key={recipe._id || index}>
-              <img className="d-block w-100" src={recipe.imageUrl} alt={recipe.title} onError={(e) => { e.target.src = "https://via.placeholder.com/400"; }} />
+              <img
+                className="d-block carousel-image"
+                src={recipe.imageUrl}
+                alt={recipe.title}
+                onError={(e) => { e.target.src = "https://via.placeholder.com/800x400"; }}
+              />
               <Carousel.Caption>
                 <h5>{recipe.title}</h5>
               </Carousel.Caption>
@@ -63,7 +68,7 @@ const Home = () => {
           ))
         ) : (
           <Carousel.Item>
-            <img className="d-block w-100" src="https://via.placeholder.com/800x400" alt="No Recipes Yet" />
+            <img className="d-block carousel-image" src="https://via.placeholder.com/800x400" alt="No Recipes Yet" />
             <Carousel.Caption>
               <h5>No Recipes Available</h5>
             </Carousel.Caption>
@@ -86,12 +91,19 @@ const Home = () => {
         {filteredRecipes.length > 0 ? (
           filteredRecipes.map((recipe, index) => (
             <Col key={recipe._id || index} md={4} className="mb-4">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 300 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
                 <Card className="shadow-sm recipe-card">
                   <Card.Img 
                     variant="top" 
                     src={recipe.imageUrl}  
                     alt={recipe.title} 
+                    className="recipe-img"
                     onError={(e) => { e.target.src = "https://via.placeholder.com/400"; }} 
                   />
 
@@ -154,4 +166,3 @@ const Home = () => {
 };
 
 export default Home;
-

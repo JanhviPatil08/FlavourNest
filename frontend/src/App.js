@@ -16,48 +16,61 @@ import SplashScreen from "./components/SplashScreen";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// ✅ Store the token globally for API requests
-const token = localStorage.getItem("authToken");
-if (token) {
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-}
-
-// ✅ Protected Route: Redirect to Login if Not Authenticated
-const PrivateRoute = ({ element }) => {
-  return token ? element : <Navigate to="/login" />;
-};
-
 function App() {
-    const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
+  const [authToken, setAuthToken] = useState(localStorage.getItem("authToken"));
 
-    useEffect(() => {
-        setTimeout(() => setShowSplash(false), 3000); // Show splash for 3 seconds
-    }, []);
+  // ✅ Update axios headers whenever the token changes
+  useEffect(() => {
+    if (authToken) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
+    } else {
+      delete axios.defaults.headers.common["Authorization"];
+    }
+  }, [authToken]);
 
-    return (
-        <Router>
-            {showSplash ? (
-                <SplashScreen />
-            ) : (
-                <div className="app-container">
-                    <Navbar />
-                    <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
-                    <div className="content">
-                        <Routes>
-                            <Route path="/" element={<Navigate to="/login" />} />
-                            <Route path="/login" element={<Login />} />
-                            <Route path="/home" element={<Home />} />
-                            <Route path="/recipes" element={<RecipeList />} />
-                            <Route path="/add-recipe" element={<PrivateRoute element={<RecipeForm />} />} />
-                            <Route path="/recipe/:id" element={<Recipe />} />
-                            <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
-                        </Routes>
-                    </div>
-                    <Footer />
-                </div>
-            )}
-        </Router>
-    );
+  // ✅ Handle Logout
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    setAuthToken(null);
+    window.location.href = "/login"; // Force refresh to clear state
+  };
+
+  // ✅ Auto-hide splash screen
+  useEffect(() => {
+    setTimeout(() => setShowSplash(false), 3000);
+  }, []);
+
+  // ✅ Protected Route Component
+  const PrivateRoute = ({ element }) => {
+    return authToken ? element : <Navigate to="/login" />;
+  };
+
+  return (
+    <Router>
+      {showSplash ? (
+        <SplashScreen />
+      ) : (
+        <div className="app-container">
+          <Navbar authToken={authToken} handleLogout={handleLogout} />
+          <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+          <div className="content">
+            <Routes>
+              <Route path="/" element={<Navigate to="/login" />} />
+              <Route path="/login" element={<Login setAuthToken={setAuthToken} />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/recipes" element={<RecipeList />} />
+              <Route path="/add-recipe" element={<PrivateRoute element={<RecipeForm />} />} />
+              <Route path="/recipe/:id" element={<Recipe />} />
+              <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
+            </Routes>
+          </div>
+          <Footer />
+        </div>
+      )}
+    </Router>
+  );
 }
 
 export default App;

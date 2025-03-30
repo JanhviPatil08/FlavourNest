@@ -11,47 +11,42 @@ const Profile = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const fetchUserAndFavorites = async () => {
+    const fetchProfileData = async () => {
       const token = localStorage.getItem("authToken");
 
       if (!token) {
-        toast.error("User not logged in. Please log in first.");
+        toast.error("You need to log in first.");
         navigate("/login");
         return;
       }
 
       try {
-        // ✅ Fetch user details first
-        const userResponse = await axios.get("https://flavournest.onrender.com/auth/me", {
+        // ✅ Fetch user details & favorites in one request (if supported by backend)
+        const response = await axios.get("https://flavournest.onrender.com/auth/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log("User Data:", userResponse.data); // Debugging log
-        setUser(userResponse.data); // ✅ Set user details
-
-        // ✅ Fetch user's favorite recipes
-        const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        console.log("Fetched Favorites:", favoritesResponse.data); // Debugging log
-        setFavorites(favoritesResponse.data); // ✅ Store favorite recipes
+        console.log("Profile Data:", response.data); // Debugging log
+        setUser(response.data.user);
+        setFavorites(response.data.favorites || []);
 
       } catch (error) {
         console.error("Profile fetch error:", error);
-        toast.error("Error fetching profile or favorite recipes.");
-        if (error.response && error.response.status === 401) {
+        toast.error(error.response?.data?.message || "Failed to fetch profile.");
+        
+        if (error.response?.status === 401) {
           localStorage.removeItem("authToken");
           navigate("/login");
         }
       } finally {
-        setLoading(false); // ✅ Fix: Ensure loading stops after API calls
+        setLoading(false);
       }
     };
 
-    fetchUserAndFavorites();
+    fetchProfileData();
   }, [navigate]);
 
+  // ✅ Logout Handler
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     toast.success("Logged out successfully!");
@@ -65,11 +60,11 @@ const Profile = () => {
       <h2 className="text-success">Your Profile</h2>
 
       {user ? (
-        <div>
-          <p><strong>Name:</strong> {user.name}</p>
+        <Card className="shadow p-4 mb-4">
+          <h4 className="mb-3">{user.name}</h4>
           <p><strong>Email:</strong> {user.email}</p>
           <Button variant="danger" onClick={handleLogout}>Logout</Button>
-        </div>
+        </Card>
       ) : (
         <Button variant="success" onClick={() => navigate("/login")}>Login</Button>
       )}
@@ -80,8 +75,8 @@ const Profile = () => {
           <p className="text-muted">You haven't saved any favorite recipes yet.</p>
         ) : (
           favorites.map((recipe) => (
-            <Col md={4} key={recipe._id} className="mb-4">
-              <Card className="shadow-sm border-0">
+            <Col md={4} sm={6} xs={12} key={recipe._id} className="mb-4">
+              <Card className="shadow-sm border-0 recipe-card">
                 <Card.Img
                   variant="top"
                   src={recipe.imageUrl || "/images/default-image.jpg"}
@@ -90,13 +85,28 @@ const Profile = () => {
                 />
                 <Card.Body>
                   <Card.Title>{recipe.title}</Card.Title>
-                  <Card.Text>{recipe.description || "No description available"}</Card.Text>
+                  <Card.Text className="text-truncate">{recipe.description || "No description available"}</Card.Text>
+                  <Button variant="outline-success" size="sm" onClick={() => navigate(`/recipe/${recipe._id}`)}>
+                    View Recipe
+                  </Button>
                 </Card.Body>
               </Card>
             </Col>
           ))
         )}
       </Row>
+
+      {/* ✅ Styles for hover effects */}
+      <style>
+        {`
+          .recipe-card {
+            transition: transform 0.2s ease-in-out;
+          }
+          .recipe-card:hover {
+            transform: scale(1.05);
+          }
+        `}
+      </style>
     </Container>
   );
 };

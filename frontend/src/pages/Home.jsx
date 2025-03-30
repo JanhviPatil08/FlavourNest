@@ -1,45 +1,42 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
+import { useNavigate } from "react-router-dom";
 import { Carousel, Container, Row, Col, Card, Button, ListGroup, Modal, Form } from "react-bootstrap";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const Home = () => {
-  const navigate = useNavigate(); // ✅ Initialize navigation
-  const [recipes, setRecipes] = useState([]); // Stores all recipes
+  const navigate = useNavigate();
+  const [recipes, setRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [show, setShow] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ✅ Check if the user is logged in before loading the page
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
     if (!token) {
-      navigate("/login"); // Redirect to login if token is missing
+      navigate("/login");
       return;
     }
 
-    // ✅ Fetch All Recipes from Backend
     axios
       .get("https://flavournest.onrender.com/recipes", {
-        headers: { Authorization: `Bearer ${token}` }, // ✅ Include token in request
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
         setRecipes(response.data);
-        setFilteredRecipes(response.data); // Initially, show all recipes
+        setFilteredRecipes(response.data);
       })
       .catch((error) => {
         console.error("❌ Error fetching recipes:", error);
         setRecipes([]);
         setFilteredRecipes([]);
       });
-  }, [navigate]); // ✅ Add navigate to dependencies
+  }, [navigate]);
 
-  // ✅ Search Functionality (Filters Recipes)
   useEffect(() => {
     const filtered = recipes.filter((recipe) =>
       recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -58,33 +55,41 @@ const Home = () => {
     setShow(true);
   };
 
-  // ✅ Get the last 5 added recipes for the Carousel
   const latestRecipes = recipes.slice(-5).reverse();
 
   return (
     <Container className="mt-4">
-      {/* ✅ Carousel Section with Latest Recipes */}
-      <Carousel className="mb-4">
+      {/* ✅ Elegant Recipe Carousel */}
+      <Carousel className="mb-4 carousel-container">
         {latestRecipes.length > 0 ? (
           latestRecipes.map((recipe, index) => (
-            <Carousel.Item key={recipe._id || index}>
-              <img
-                className="d-block carousel-image"
-                src={recipe.imageUrl}
-                alt={recipe.title}
-                onError={(e) => { e.target.src = "https://via.placeholder.com/800x400"; }}
-              />
-              <Carousel.Caption>
-                <h5>{recipe.title}</h5>
-              </Carousel.Caption>
+            <Carousel.Item key={recipe._id || index} className="carousel-item-custom">
+              <motion.div
+                initial={{ opacity: 0.8, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8 }}
+              >
+                <img
+                  className="d-block w-100 carousel-image"
+                  src={recipe.imageUrl}
+                  alt={recipe.title}
+                  onError={(e) => { e.target.src = "https://via.placeholder.com/800x400"; }}
+                />
+              </motion.div>
+
+              {/* ✅ Elegant Overlay */}
+              <div className="carousel-overlay">
+                <h2 className="carousel-title">{recipe.title}</h2>
+                <p className="carousel-description">{recipe.description}</p>
+              </div>
             </Carousel.Item>
           ))
         ) : (
           <Carousel.Item>
-            <img className="d-block carousel-image" src="https://via.placeholder.com/800x400" alt="No Recipes Yet" />
-            <Carousel.Caption>
-              <h5>No Recipes Available</h5>
-            </Carousel.Caption>
+            <img className="d-block w-100 carousel-image" src="https://via.placeholder.com/800x400" alt="No Recipes Yet" />
+            <div className="carousel-overlay">
+              <h2>No Recipes Available</h2>
+            </div>
           </Carousel.Item>
         )}
       </Carousel>

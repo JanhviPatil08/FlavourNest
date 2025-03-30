@@ -277,4 +277,44 @@ html {
   transform: translateY(-5px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
+/* ✅ Make the carousel look premium */
+.carousel-item-custom {
+  position: relative;
+  height: 450px;
+  overflow: hidden;
+}
+
+/* ✅ Improve Image Presentation */
+.carousel-image {
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7); /* Slight dark effect for readability */
+}
+
+/* ✅ Beautiful Overlay Effect */
+.carousel-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+/* ✅ Stylish Title */
+.carousel-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* ✅ Responsive Description */
+.carousel-description {
+  font-size: 1rem;
+  opacity: 0.9;
+  max-width: 80%;
+  margin: auto;
+}
 

@@ -8,7 +8,6 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
   const [favorite, setFavorite] = useState(isFavorite);
   const [show, setShow] = useState(false);
 
-  // ✅ Ensure correct image URL from user input
   const imageUrl = recipe.imageUrl?.startsWith("http")
     ? recipe.imageUrl
     : "/images/default-recipe.jpg"; // Fallback image
@@ -21,23 +20,21 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
     }
 
     try {
-      // ✅ Corrected API endpoint for saving/removing favorites
-      await axios.post(
-        "https://flavournest.onrender.com/savedRecipes", // ✅ Updated path
+      const response = await axios.post(
+        "https://flavournest.onrender.com/users/favourites", // ✅ Corrected API endpoint
         { recipeId: recipe._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setFavorite(!favorite); // ✅ Toggle state locally
+      setFavorite(!favorite);
 
-      // ✅ Fetch updated favorites from backend
-      const favoritesResponse = await axios.get(
-        "https://flavournest.onrender.com/savedRecipes", // ✅ Updated path
+      // ✅ Fetch updated favorites after toggling
+      const profileResponse = await axios.get(
+        "https://flavournest.onrender.com/users/me",
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // ✅ Ensure favorites are stored as a Set for better performance
-      setFavoriteRecipes(new Set([...favoritesResponse.data.map(r => r._id)]));
+      setFavoriteRecipes(new Set(profileResponse.data.favorites.map(r => r._id)));
 
       toast.success("Favorites updated!");
     } catch (error) {
@@ -74,7 +71,7 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
             src={imageUrl}
             alt={recipe.title}
             className="img-fluid rounded mb-3"
-            onError={(e) => { e.target.src = "/images/default-recipe.jpg"; }} // Fallback
+            onError={(e) => { e.target.src = "/images/default-recipe.jpg"; }}
           />
           <p><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
 

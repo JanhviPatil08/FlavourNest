@@ -2,24 +2,32 @@ import User from "../models/User.js";
 import Recipe from "../models/Recipe.js";
 import mongoose from "mongoose";  // ✅ Ensure ObjectId conversion
 
-// ✅ Add or Remove Favorite Recipe (More Efficient)
+// ✅ Add or Remove Favorite Recipe
 export const toggleFavouriteRecipe = async (req, res) => {
   try {
     const { recipeId } = req.body;
     const userId = req.user.id;
-    console.log("✅ Received request to toggle favorite:", req.body);
-    console.log("🟡 Request to toggle favorite:", { userId, recipeId });
 
-    // ✅ Convert to ObjectId
+    console.log("✅ Received request to toggle favorite:", { userId, recipeId });
+
+    if (!mongoose.Types.ObjectId.isValid(recipeId)) {
+      console.log("🔴 Invalid Recipe ID");
+      return res.status(400).json({ message: "Invalid recipe ID" });
+    }
+
     const recipeObjectId = new mongoose.Types.ObjectId(recipeId);
 
-    const user = await User.findById(userId);
+    // ✅ Ensure user and recipe exist
+    const [user, recipe] = await Promise.all([
+      User.findById(userId),
+      Recipe.findById(recipeObjectId),
+    ]);
+
     if (!user) {
       console.log("🔴 User not found");
       return res.status(404).json({ message: "User not found" });
     }
 
-    const recipe = await Recipe.findById(recipeObjectId);
     if (!recipe) {
       console.log("🔴 Recipe not found");
       return res.status(404).json({ message: "Recipe not found" });
@@ -31,8 +39,12 @@ export const toggleFavouriteRecipe = async (req, res) => {
       ? { $pull: { savedRecipes: recipeObjectId } }  // Remove from favorites
       : { $addToSet: { savedRecipes: recipeObjectId } }; // Add to favorites
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updateAction, { new: true })
-      .populate("savedRecipes");
+    // ✅ Update user and fetch updated favorites
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      updateAction,
+      { new: true }
+    ).populate("savedRecipes");
 
     console.log("✅ Updated savedRecipes:", updatedUser.savedRecipes);
 
@@ -52,7 +64,6 @@ export const getFavouriteRecipes = async (req, res) => {
     }
 
     console.log("🟢 Fetching favorite recipes:", user.savedRecipes);
-
     res.json(user.savedRecipes); // ✅ Returning only the recipes array
   } catch (error) {
     console.error("❌ Failed to fetch favorite recipes:", error);
@@ -63,7 +74,10 @@ export const getFavouriteRecipes = async (req, res) => {
 // ✅ Get User Profile with Favorites
 export const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate("savedRecipes").select("-password");
+    const user = await User.findById(req.user.id)
+      .populate("savedRecipes")
+      .select("-password");
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -81,7 +95,3 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-
-
-

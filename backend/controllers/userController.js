@@ -2,7 +2,7 @@ import User from "../models/User.js";
 import Recipe from "../models/Recipe.js";
 
 // ✅ Add or Remove Favorite Recipe
-export const toggleFavouriteRecipe = async (req, res) => {  // ✅ Ensure correct function name
+export const toggleFavouriteRecipe = async (req, res) => {
   try {
     const { recipeId } = req.body;
     const user = await User.findById(req.user.id);
@@ -17,16 +17,16 @@ export const toggleFavouriteRecipe = async (req, res) => {  // ✅ Ensure correc
     }
 
     // ✅ Toggle favorite (add/remove)
-    const index = user.savedRecipes.indexOf(recipeId);
-    if (index === -1) {
-      user.savedRecipes.push(recipeId);  // ✅ Add to favorites
+    if (user.savedRecipes.includes(recipeId)) {
+      user.savedRecipes = user.savedRecipes.filter((id) => id.toString() !== recipeId);
     } else {
-      user.savedRecipes.splice(index, 1);  // ✅ Remove from favorites
+      user.savedRecipes.push(recipeId);
     }
-    
 
     await user.save();
-    res.json({ message: "✅ Favorite list updated", savedRecipes: user.savedRecipes });
+
+    // ✅ Send updated favorites list
+    res.json({ message: "✅ Favorite list updated", favorites: user.savedRecipes });
   } catch (error) {
     res.status(500).json({ message: "❌ Failed to update favorites", error: error.message });
   }
@@ -35,29 +35,33 @@ export const toggleFavouriteRecipe = async (req, res) => {  // ✅ Ensure correc
 // ✅ Fetch User's Favorite Recipes
 export const getFavouriteRecipes = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate("savedRecipes");  // ✅ Fetch full recipe details
+    const user = await User.findById(req.user.id).populate("savedRecipes");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(user.savedRecipes);
+    // ✅ Send back the favorites in correct format
+    res.json({ favorites: user.savedRecipes });
   } catch (error) {
     res.status(500).json({ message: "❌ Failed to fetch favorite recipes" });
   }
 };
 
-
-// ✅ FIXED: Get User Profile
+// ✅ Get User Profile with Favorites
 export const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password"); // ✅ Changed `UserModel` to `User`
+    const user = await User.findById(req.user.id).populate("savedRecipes").select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.json({_id: user._id,
+
+    // ✅ Include favorites in response
+    res.json({
+      _id: user._id,
       name: user.name,
       email: user.email,
-      favoriteRecipes: user.savedRecipes, });
+      favorites: user.savedRecipes, // Ensuring it matches frontend expectations
+    });
   } catch (error) {
     console.error("Error fetching user profile:", error);
     res.status(500).json({ message: "Server error" });

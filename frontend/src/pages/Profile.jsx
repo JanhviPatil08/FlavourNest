@@ -36,11 +36,13 @@ const Profile = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("Fetched Favorites:", favoritesResponse.data);
-      setFavorites(favoritesResponse.data);
+      console.log("Fetched Favorites:", favoritesResponse.data); // ✅ Debugging Step
+
+      // 🛠 Ensure we extract the correct array of recipes
+      setFavorites(favoritesResponse.data.favorites || favoritesResponse.data);
 
     } catch (error) {
-      console.error("Error fetching profile or favorites:", error);
+      console.error("❌ Error fetching profile or favorites:", error);
       toast.error("Error fetching profile or favorite recipes.");
     } finally {
       setLoading(false);
@@ -97,6 +99,7 @@ const Profile = () => {
 };
 
 export default Profile;
+
 
 
 

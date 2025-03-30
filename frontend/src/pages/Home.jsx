@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Carousel, Container, Row, Col, Card, Button, Form, Modal } from "react-bootstrap";
 import { motion } from "framer-motion";
@@ -9,7 +9,7 @@ const Home = () => {
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
-  const [favorites, setFavorites] = useState([]); // Fetch from the backend
+  const [favorites, setFavorites] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [show, setShow] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,7 +24,6 @@ const Home = () => {
 
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    // ✅ Fetch recipes
     axios
       .get("https://flavournest.onrender.com/recipes")
       .then((response) => {
@@ -33,67 +32,41 @@ const Home = () => {
       })
       .catch((error) => {
         console.error("❌ Error fetching recipes:", error);
+        setRecipes([]);
+        setFilteredRecipes([]);
       });
 
-    // ✅ Fetch user's favorite recipes
-    fetchFavorites();
+    // Load saved favorites
+    const savedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    setFavorites(savedFavorites);
   }, [navigate]);
 
-  // Function to fetch updated favorites
-  const fetchFavorites = () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) return;
+  // Debounced search
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setFilteredRecipes(
+        recipes.filter((recipe) =>
+          recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    }, 300);
 
-    axios
-      .get("https://flavournest.onrender.com/users/favorites", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        setFavorites(response.data.map((fav) => fav._id)); // Extract only IDs
-      })
-      .catch((error) => {
-        console.error("❌ Error fetching favorites:", error);
-      });
-  };
+    return () => clearTimeout(timeout);
+  }, [searchQuery, recipes]);
 
-  // ✅ Handle favorites API call (Add/Remove from backend)
-  const handleFavorite = async (id) => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      console.log("🔴 User not logged in, redirecting...");
-      navigate("/login");
-      return;
-    }
-
-    try {
-      let updatedFavorites;
-
-      if (favorites.includes(id)) {
-        // ❌ Remove from favorites
-        await axios.delete(`https://flavournest.onrender.com/users/favorites/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        updatedFavorites = favorites.filter((favId) => favId !== id);
-      } else {
-        // ✅ Add to favorites
-        await axios.post(
-          "https://flavournest.onrender.com/users/favorites",
-          { recipeId: id },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        updatedFavorites = [...favorites, id];
-      }
-
-      setFavorites(updatedFavorites);
-      fetchFavorites(); // ✅ Ensure UI updates with latest favorites
-    } catch (error) {
-      console.error("❌ Error updating favorites:", error);
-    }
+  // Handle favorites
+  const handleFavorite = (id) => {
+    setFavorites((prev) => {
+      const updatedFavorites = prev.includes(id)
+        ? prev.filter((fav) => fav !== id)
+        : [...prev, id];
+      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
+      return updatedFavorites;
+    });
   };
 
   return (
     <Container className="mt-4">
-      {/* 🚀 Carousel for latest recipes */}
       <Carousel className="mb-4 carousel-container">
         {recipes.slice(-5).reverse().map((recipe) => (
           <Carousel.Item key={recipe._id} className="carousel-item-custom">
@@ -113,7 +86,6 @@ const Home = () => {
         ))}
       </Carousel>
 
-      {/* 🔍 Search Bar */}
       <Form className="mb-4">
         <Form.Control
           type="text"
@@ -123,7 +95,6 @@ const Home = () => {
         />
       </Form>
 
-      {/* 🍽 Latest Recipes */}
       <h1 className="text-center text-success mb-4">Latest Recipes</h1>
       <Row>
         {filteredRecipes.map((recipe) => (
@@ -135,7 +106,6 @@ const Home = () => {
                   <Card.Title>{recipe.title}</Card.Title>
                   <Card.Text>{recipe.description}</Card.Text>
                   <Button variant="success" onClick={() => { setSelectedRecipe(recipe); setShow(true); }}>View Recipe</Button>
-                  {/* ❤️ Like Button */}
                   <Button variant="light" className="favorite-btn ms-2" onClick={() => handleFavorite(recipe._id)}>
                     {favorites.includes(recipe._id) ? <FaHeart color="red" /> : <FaRegHeart />}
                   </Button>
@@ -146,7 +116,7 @@ const Home = () => {
         ))}
       </Row>
 
-      {/* 🍽 Recipe Modal */}
+      {/* Recipe Modal */}
       <Modal show={show} onHide={() => setShow(false)} centered>
         {selectedRecipe && (
           <>
@@ -168,6 +138,4 @@ const Home = () => {
 };
 
 export default Home;
-
-
 

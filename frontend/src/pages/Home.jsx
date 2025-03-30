@@ -1,26 +1,38 @@
 import React, { useState, useEffect } from "react";
+import { Carousel, Container, Row, Col, Card, Button, ListGroup, Modal, Form } from "react-bootstrap";
 import { motion } from "framer-motion";
 import axios from "axios";
-import { Container, Row, Col, Card, Button, ListGroup, Modal } from "react-bootstrap";
-import { FaHeart, FaRegHeart } from "react-icons/fa"; // Favorite icons
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const Home = () => {
-  const [recipes, setRecipes] = useState([]); // ✅ Start with empty array (no hardcoded recipes)
+  const [recipes, setRecipes] = useState([]); // Stores all recipes
+  const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [show, setShow] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // ✅ Fetch Recipes from Backend Only
+  // ✅ Fetch All Recipes from Backend (Frontend will display latest 5 in the carousel)
   useEffect(() => {
     axios.get("https://flavournest.onrender.com/recipes")
       .then((response) => {
-        setRecipes(response.data); // ✅ Only backend recipes
+        setRecipes(response.data);
+        setFilteredRecipes(response.data); // Initially, show all recipes
       })
       .catch((error) => {
         console.error("❌ Error fetching recipes:", error);
-        setRecipes([]); // ✅ If backend fails, show nothing
+        setRecipes([]);
+        setFilteredRecipes([]);
       });
   }, []);
+
+  // ✅ Search Functionality (Filters Recipes)
+  useEffect(() => {
+    const filtered = recipes.filter(recipe =>
+      recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredRecipes(filtered);
+  }, [searchQuery, recipes]);
 
   const toggleFavorite = (id) => {
     setFavorites((prev) =>
@@ -33,21 +45,54 @@ const Home = () => {
     setShow(true);
   };
 
+  // ✅ Get the last 5 added recipes for the Carousel
+  const latestRecipes = recipes.slice(-5).reverse(); // Get last 5 recipes in reverse order
+
   return (
     <Container className="mt-4">
-      <h1 className="text-center text-success mb-4">Discover New Recipes</h1>
+      {/* ✅ Carousel Section with Latest Recipes */}
+      <Carousel className="mb-4">
+        {latestRecipes.length > 0 ? (
+          latestRecipes.map((recipe, index) => (
+            <Carousel.Item key={recipe._id || index}>
+              <img className="d-block w-100" src={recipe.imageUrl} alt={recipe.title} onError={(e) => { e.target.src = "https://via.placeholder.com/400"; }} />
+              <Carousel.Caption>
+                <h5>{recipe.title}</h5>
+              </Carousel.Caption>
+            </Carousel.Item>
+          ))
+        ) : (
+          <Carousel.Item>
+            <img className="d-block w-100" src="https://via.placeholder.com/800x400" alt="No Recipes Yet" />
+            <Carousel.Caption>
+              <h5>No Recipes Available</h5>
+            </Carousel.Caption>
+          </Carousel.Item>
+        )}
+      </Carousel>
+
+      {/* ✅ Search Bar */}
+      <Form className="mb-4">
+        <Form.Control
+          type="text"
+          placeholder="Search for recipes..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </Form>
+
+      <h1 className="text-center text-success mb-4">Latest Recipes</h1>
       <Row>
-        {recipes.length > 0 ? (
-          recipes.map((recipe, index) => (
+        {filteredRecipes.length > 0 ? (
+          filteredRecipes.map((recipe, index) => (
             <Col key={recipe._id || index} md={4} className="mb-4">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 300 }}>
                 <Card className="shadow-sm recipe-card">
-                  {/* ✅ Display Image from Backend */}
                   <Card.Img 
                     variant="top" 
                     src={recipe.imageUrl}  
                     alt={recipe.title} 
-                    onError={(e) => { e.target.src = "https://via.placeholder.com/400"; }} // Fallback Image
+                    onError={(e) => { e.target.src = "https://via.placeholder.com/400"; }} 
                   />
 
                   <Card.Body>
@@ -68,7 +113,7 @@ const Home = () => {
             </Col>
           ))
         ) : (
-          <h3 className="text-center text-muted">No recipes available. Add some!</h3>
+          <h3 className="text-center text-muted">No recipes found.</h3>
         )}
       </Row>
 
@@ -109,6 +154,4 @@ const Home = () => {
 };
 
 export default Home;
-
-
 

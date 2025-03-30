@@ -19,30 +19,31 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       const url = isRegister
         ? "https://flavournest.onrender.com/auth/register"
         : "https://flavournest.onrender.com/auth/login";
-  
+
       const response = await axios.post(url, formData);
-  
+
       if (response.status === 200 || response.status === 201) {
         toast.success(isRegister ? "🎉 Registration successful! Please login." : "✅ Login successful!");
-  
+
         if (!isRegister) {
-          const token = response.data.token;
-  
-          if (!token) {
-            throw new Error("Token not received from server.");
-          }
-  
-          // ✅ Store token properly
-          localStorage.setItem("authToken", token);  
+          const { token, user } = response.data;
+
+          if (!token) throw new Error("Token not received from server.");
+
+          // ✅ Store token & user info
+          localStorage.setItem("authToken", token);
+          localStorage.setItem("user", JSON.stringify(user));
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  
-          // ✅ Redirect after login
-          navigate("/profile");
+
+          // ✅ Redirect to Home with Smooth Transition
+          setTimeout(() => {
+            navigate("/home", { replace: true });
+          }, 500);
         }
       } else {
         throw new Error("Unexpected response from server.");
@@ -53,7 +54,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-  
 
   return (
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>

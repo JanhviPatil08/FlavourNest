@@ -8,33 +8,41 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
   const [favorite, setFavorite] = useState(isFavorite);
   const [show, setShow] = useState(false);
 
-  // ✅ FIXED: Ensure correct image URL from user input
+  // ✅ Ensure correct image URL from user input
   const imageUrl = recipe.imageUrl?.startsWith("http")
     ? recipe.imageUrl
     : "/images/default-recipe.jpg"; // Fallback image
 
   const handleFavoriteClick = async () => {
     const token = localStorage.getItem("authToken");
-    if (!token) return alert("Please login first!");
+    if (!token) {
+      toast.error("Please log in first!");
+      return;
+    }
 
     try {
+      // ✅ Corrected API endpoint for saving/removing favorites
       const response = await axios.post(
-        "https://flavournest.onrender.com/users/favorites",
+        "https://flavournest.onrender.com/users/savedRecipes", // ✅ Updated path
         { recipeId: recipe._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setFavorite(!favorite); // ✅ Fixed: Use local state
+      setFavorite(!favorite); // ✅ Toggle state locally
 
+      // ✅ Fetch updated favorites from backend
       const favoritesResponse = await axios.get(
-        "https://flavournest.onrender.com/users/favorites",
+        "https://flavournest.onrender.com/users/savedRecipes", // ✅ Updated path
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setFavoriteRecipes(new Set(favoritesResponse.data.map(r => r._id))); // ✅ Fixed placement
+      // ✅ Ensure favorites are stored as a Set for better performance
+      setFavoriteRecipes(new Set(favoritesResponse.data.favorites.map(r => r._id)));
+
+      toast.success("Favorites updated!");
     } catch (error) {
-      console.error("Failed to update favorites", error);
-      alert("Failed to update favorites");
+      console.error("❌ Failed to update favorites", error);
+      toast.error("Failed to update favorites. Please try again.");
     }
   };
 
@@ -95,3 +103,4 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
 };
 
 export default RecipeCard;
+

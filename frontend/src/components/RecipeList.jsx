@@ -24,7 +24,7 @@ function RecipeList() {
         setRecipes(response.data);
 
         // ✅ Fetch user's favorite recipes
-        const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/favorites", {
+        const favoritesResponse = await axios.get("https://flavournest.onrender.com/users/savedRecipes", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

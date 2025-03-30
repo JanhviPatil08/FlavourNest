@@ -8,11 +8,11 @@ const router = express.Router();
 router.get("/me", authMiddleware, getUserProfile);
 
 // ✅ Get User's Favorite Recipes
-router.get("/savedRecipes", authMiddleware, getFavouriteRecipes); 
-router.post("/savedRecipes", authMiddleware, toggleFavouriteRecipe);
- 
+router.get("/savedRecipes", authMiddleware, getFavouriteRecipes);
+router.post("/savedRecipes", authMiddleware, toggleFavouriteRecipe); 
 
 export default router;
+
 
 
 

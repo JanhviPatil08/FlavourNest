@@ -1,5 +1,5 @@
 import { Card, Button, Modal } from "react-bootstrap";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Heart, HeartFill } from "react-bootstrap-icons";
@@ -7,11 +7,6 @@ import { Heart, HeartFill } from "react-bootstrap-icons";
 const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
   const [favorite, setFavorite] = useState(isFavorite);
   const [show, setShow] = useState(false);
-
-  // ✅ Sync favorite state when `isFavorite` updates from parent
-  useEffect(() => {
-    setFavorite(isFavorite);
-  }, [isFavorite]);
 
   // ✅ Ensure correct image URL from user input
   const imageUrl = recipe.imageUrl?.startsWith("http")
@@ -26,36 +21,27 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
     }
 
     try {
-      console.log("🔵 Toggling favorite for:", recipe._id);
-
-      // ✅ API call to add/remove favorite
-      const response = await axios.post(
-        "https://flavournest.onrender.com/users/favorites", // ✅ Check correct endpoint
+      // ✅ Corrected API endpoint for saving/removing favorites
+      await axios.post(
+        "https://flavournest.onrender.com/savedRecipes", // ✅ Updated path
         { recipeId: recipe._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      console.log("🟢 Favorite Response:", response.data);
+      setFavorite(!favorite); // ✅ Toggle state locally
 
-      // ✅ Update state based on backend response
+      // ✅ Fetch updated favorites from backend
       const favoritesResponse = await axios.get(
-        "https://flavournest.onrender.com/users/favorites",
+        "https://flavournest.onrender.com/savedRecipes", // ✅ Updated path
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      console.log("🟢 Updated Favorites List:", favoritesResponse.data.favorites);
-
-      // ✅ Update UI based on backend data
-      const updatedFavorites = new Set(
-        favoritesResponse.data.favorites.map((r) => r._id)
-      );
-
-      setFavoriteRecipes(updatedFavorites); // ✅ Update favorites in parent component
-      setFavorite(updatedFavorites.has(recipe._id)); // ✅ Ensure UI updates correctly
+      // ✅ Ensure favorites are stored as a Set for better performance
+      setFavoriteRecipes(new Set([...favoritesResponse.data.map(r => r._id)]));
 
       toast.success("Favorites updated!");
     } catch (error) {
-      console.error("❌ Failed to update favorites:", error);
+      console.error("❌ Failed to update favorites", error);
       toast.error("Failed to update favorites. Please try again.");
     }
   };
@@ -63,28 +49,22 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
   return (
     <>
       <Card className="recipe-card">
-        {/* ✅ Image now correctly loads from URL */}
         <Card.Img
           variant="top"
           src={imageUrl}
           alt={recipe.title}
-          onError={(e) => {
-            e.target.src = "/images/default-recipe.jpg";
-          }} // Fallback image if URL fails
+          onError={(e) => { e.target.src = "/images/default-recipe.jpg"; }} // Fallback image if URL fails
         />
         <Card.Body>
           <Card.Title>{recipe.title}</Card.Title>
           <Card.Text>{recipe.description || "No description available"}</Card.Text>
-          <Button variant="outline-success" onClick={() => setShow(true)}>
-            View Recipe
-          </Button>
+          <Button variant="outline-success" onClick={() => setShow(true)}>View Recipe</Button>
           <Button variant="light" className="ms-2" onClick={handleFavoriteClick}>
             {favorite ? <HeartFill color="red" /> : <Heart />}
           </Button>
         </Card.Body>
       </Card>
 
-      {/* ✅ FIXED: Modal displays all details properly */}
       <Modal show={show} onHide={() => setShow(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>{recipe.title}</Modal.Title>
@@ -94,9 +74,7 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
             src={imageUrl}
             alt={recipe.title}
             className="img-fluid rounded mb-3"
-            onError={(e) => {
-              e.target.src = "/images/default-recipe.jpg";
-            }} // Fallback
+            onError={(e) => { e.target.src = "/images/default-recipe.jpg"; }} // Fallback
           />
           <p><strong>Cooking Time:</strong> {recipe.cookingTime} minutes</p>
 
@@ -123,5 +101,3 @@ const RecipeCard = ({ recipe, isFavorite, setFavoriteRecipes }) => {
 };
 
 export default RecipeCard;
-
-

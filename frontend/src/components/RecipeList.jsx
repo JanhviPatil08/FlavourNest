@@ -28,7 +28,8 @@ function RecipeList() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const favoriteIds = new Set(favoritesResponse.data.map(recipe => recipe._id));
+        const favoriteIds = new Set(favoritesResponse.data.favorites.map(recipe => recipe._id));
+
         setFavoriteRecipes(favoriteIds);
 
       } catch (error) {

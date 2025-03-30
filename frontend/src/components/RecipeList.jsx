@@ -28,7 +28,7 @@ function RecipeList() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const favoriteIds = new Set(favoritesResponse.data.favorites.map(recipe => recipe._id));
+       const favoriteIds = new Set([...favoritesResponse.data.favorites.map(recipe => recipe._id)]);
 
         setFavoriteRecipes(favoriteIds);
 
@@ -58,8 +58,8 @@ function RecipeList() {
             <div key={recipe._id} className="col-md-4 mb-4">
               <RecipeCard 
                 recipe={recipe}
-                isFavorite={favoriteRecipes.has(recipe._id)}  // ✅ Pass favorite status
-                setFavoriteRecipes={setFavoriteRecipes}  // ✅ Update favorite state
+                isFavorite={favoriteRecipes.has(recipe._id)}  // ✅ Pass correct favorite status
+               setFavoriteRecipes={setFavoriteRecipes}  // ✅ Update favorite state
               />
             </div>
           ))}

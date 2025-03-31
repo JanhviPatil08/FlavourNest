@@ -3,7 +3,7 @@
 const SplashScreen = () => {
     return (
         <div className="splash-screen">
-            <img src="/cook.jpeg"  />
+            <img src="/logo-png.png"  />
         </div>
     );
 };

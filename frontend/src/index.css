@@ -21,25 +21,27 @@ body, html {
   flex: 1;
 }
 /* ✅ Full-Screen Splash Screen */
+/* ✅ Full-Screen Splash Screen */
 .splash-screen {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
-  background-color: #fff; /* Change background color if needed */
+  background-color: #fff; /* Adjust if needed */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .splash-image {
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover; /* Ensures the image covers the full screen */
-  animation: fadeOut 3s ease-in-out;
+  max-width: 90vw !important;  /* Ensures it fits inside the screen */
+  max-height: 80vh !important; /* Prevents it from being too tall */
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 @keyframes fadeOut {

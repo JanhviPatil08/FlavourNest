@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Carousel, Container, Row, Col, Card, Button, Form, Modal } from "react-bootstrap";
 import { motion } from "framer-motion";
@@ -17,7 +17,6 @@ const Home = () => {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      console.log("🔴 No token found, redirecting to login...");
       navigate("/login", { replace: true });
       return;
     }
@@ -36,12 +35,10 @@ const Home = () => {
         setFilteredRecipes([]);
       });
 
-    // Load saved favorites
     const savedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
     setFavorites(savedFavorites);
   }, [navigate]);
 
-  // Debounced search
   useEffect(() => {
     const timeout = setTimeout(() => {
       setFilteredRecipes(
@@ -50,11 +47,9 @@ const Home = () => {
         )
       );
     }, 300);
-
     return () => clearTimeout(timeout);
   }, [searchQuery, recipes]);
 
-  // Handle favorites
   const handleFavorite = (id) => {
     setFavorites((prev) => {
       const updatedFavorites = prev.includes(id)
@@ -116,7 +111,6 @@ const Home = () => {
         ))}
       </Row>
 
-      {/* Recipe Modal */}
       <Modal show={show} onHide={() => setShow(false)} centered>
         {selectedRecipe && (
           <>
@@ -125,7 +119,30 @@ const Home = () => {
             </Modal.Header>
             <Modal.Body>
               <img src={selectedRecipe.imageUrl} alt={selectedRecipe.title} className="w-100 mb-3" onError={(e) => { e.target.src = "https://via.placeholder.com/600"; }} />
+              
+              <h5>Description</h5>
               <p>{selectedRecipe.description}</p>
+
+              <h5>Cooking Time</h5>
+              <p>{selectedRecipe.cookingTime ? `${selectedRecipe.cookingTime} minutes` : "Not specified"}</p>
+
+              <h5>Ingredients</h5>
+              {selectedRecipe.ingredients?.length > 0 ? (
+                <ul>
+                  {selectedRecipe.ingredients.map((ingredient, index) => (
+                    <li key={index}>{ingredient}</li>
+                  ))}
+                </ul>
+              ) : <p>No ingredients available.</p>}
+
+              <h5>Instructions</h5>
+              {selectedRecipe.instructions?.length > 0 ? (
+                <ol>
+                  {selectedRecipe.instructions.map((step, index) => (
+                    <li key={index}>{step}</li>
+                  ))}
+                </ol>
+              ) : <p>No instructions available.</p>}
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={() => setShow(false)}>Close</Button>
@@ -137,5 +154,6 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Home
+
 

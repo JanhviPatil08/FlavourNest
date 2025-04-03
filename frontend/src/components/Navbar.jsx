@@ -22,7 +22,7 @@ const Navigation = () => {
               Home
             </Nav.Link>
             <Nav.Link as={Link} to="/recipes" className={`nav-link ${location.pathname === "/recipes" ? "active" : ""}`}>
-              Recipes
+              My Recipes
             </Nav.Link>
             <Nav.Link as={Link} to="/add-recipe" className={`nav-link ${location.pathname === "/add-recipe" ? "active" : ""}`}>
               Add Recipe
